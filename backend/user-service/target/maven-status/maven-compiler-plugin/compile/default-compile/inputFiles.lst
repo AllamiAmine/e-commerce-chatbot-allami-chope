@@ -1,0 +1,13 @@
+C:\Users\AMINE ALLAMI\Downloads\e-commerce-chatbot-frontend (1)\backend\user-service\src\main\java\com\shopai\user\config\SecurityConfig.java
+C:\Users\AMINE ALLAMI\Downloads\e-commerce-chatbot-frontend (1)\backend\user-service\src\main\java\com\shopai\user\dto\AuthResponse.java
+C:\Users\AMINE ALLAMI\Downloads\e-commerce-chatbot-frontend (1)\backend\user-service\src\main\java\com\shopai\user\entity\User.java
+C:\Users\AMINE ALLAMI\Downloads\e-commerce-chatbot-frontend (1)\backend\user-service\src\main\java\com\shopai\user\controller\UserController.java
+C:\Users\AMINE ALLAMI\Downloads\e-commerce-chatbot-frontend (1)\backend\user-service\src\main\java\com\shopai\user\config\DataInitializer.java
+C:\Users\AMINE ALLAMI\Downloads\e-commerce-chatbot-frontend (1)\backend\user-service\src\main\java\com\shopai\user\security\JwtAuthenticationFilter.java
+C:\Users\AMINE ALLAMI\Downloads\e-commerce-chatbot-frontend (1)\backend\user-service\src\main\java\com\shopai\user\service\UserService.java
+C:\Users\AMINE ALLAMI\Downloads\e-commerce-chatbot-frontend (1)\backend\user-service\src\main\java\com\shopai\user\security\JwtService.java
+C:\Users\AMINE ALLAMI\Downloads\e-commerce-chatbot-frontend (1)\backend\user-service\src\main\java\com\shopai\user\dto\RegisterRequest.java
+C:\Users\AMINE ALLAMI\Downloads\e-commerce-chatbot-frontend (1)\backend\user-service\src\main\java\com\shopai\user\dto\AuthRequest.java
+C:\Users\AMINE ALLAMI\Downloads\e-commerce-chatbot-frontend (1)\backend\user-service\src\main\java\com\shopai\user\controller\AuthController.java
+C:\Users\AMINE ALLAMI\Downloads\e-commerce-chatbot-frontend (1)\backend\user-service\src\main\java\com\shopai\user\repository\UserRepository.java
+C:\Users\AMINE ALLAMI\Downloads\e-commerce-chatbot-frontend (1)\backend\user-service\src\main\java\com\shopai\user\UserServiceApplication.java

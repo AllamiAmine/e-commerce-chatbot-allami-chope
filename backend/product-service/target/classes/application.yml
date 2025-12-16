@@ -1,0 +1,26 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: product-service
+  
+  # MySQL Database
+  datasource:
+    url: jdbc:mysql://localhost:3306/shopai_products?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: root
+    password: 
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQL8Dialect
+
+logging:
+  level:
+    com.shopai: DEBUG

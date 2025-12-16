@@ -1,0 +1,112 @@
+version: '3.8'
+
+services:
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: shopai-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: shopai
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - shopai-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # API Gateway
+  api-gateway:
+    build: ./api-gateway
+    container_name: shopai-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - user-service
+      - product-service
+      - order-service
+      - chatbot-service
+    networks:
+      - shopai-network
+
+  # User Service
+  user-service:
+    build: ./user-service
+    container_name: shopai-user-service
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/shopai_users?createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - shopai-network
+
+  # Product Service
+  product-service:
+    build: ./product-service
+    container_name: shopai-product-service
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/shopai_products?createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - shopai-network
+
+  # Order Service
+  order-service:
+    build: ./order-service
+    container_name: shopai-order-service
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/shopai_orders?createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - shopai-network
+
+  # ChatBot Service
+  chatbot-service:
+    build: ./chatbot-service
+    container_name: shopai-chatbot-service
+    ports:
+      - "8084:8084"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SERVICES_PRODUCT_SERVICE=http://product-service:8082
+      - SERVICES_ORDER_SERVICE=http://order-service:8083
+    depends_on:
+      - product-service
+    networks:
+      - shopai-network
+
+volumes:
+  mysql-data:
+
+networks:
+  shopai-network:
+    driver: bridge
+

@@ -1,0 +1,10 @@
+com\shopai\order\entity\Order.class
+com\shopai\order\controller\OrderController.class
+com\shopai\order\entity\Order$OrderStatus.class
+com\shopai\order\OrderServiceApplication.class
+com\shopai\order\config\CorsConfig.class
+com\shopai\order\entity\Order$OrderBuilder.class
+com\shopai\order\entity\OrderItem$OrderItemBuilder.class
+com\shopai\order\entity\OrderItem.class
+com\shopai\order\service\OrderService.class
+com\shopai\order\repository\OrderRepository.class

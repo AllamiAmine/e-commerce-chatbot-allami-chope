@@ -1,0 +1,84 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Light mode colors - Brown/Gold Theme */
+  --background: 0 0% 100%;
+  --foreground: 25 20% 15%;
+  --card: 0 0% 100%;
+  --card-foreground: 25 20% 15%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 25 20% 15%;
+  --primary: 33 54% 38%;
+  --primary-foreground: 0 0% 98%;
+  --secondary: 30 12% 92%;
+  --secondary-foreground: 25 20% 15%;
+  --muted: 30 12% 92%;
+  --muted-foreground: 25 10% 45%;
+  --accent: 30 25% 85%;
+  --accent-foreground: 25 20% 15%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 30 15% 88%;
+  --input: 30 15% 88%;
+  --ring: 33 54% 38%;
+  --radius: 0.5rem;
+}
+
+.dark {
+  /* Dark mode colors */
+  --background: 222 47% 11%;
+  --foreground: 210 40% 98%;
+  --card: 222 47% 13%;
+  --card-foreground: 210 40% 98%;
+  --popover: 222 47% 13%;
+  --popover-foreground: 210 40% 98%;
+  --primary: 33 54% 55%;
+  --primary-foreground: 222 47% 11%;
+  --secondary: 215 25% 19%;
+  --secondary-foreground: 210 40% 98%;
+  --muted: 215 25% 20%;
+  --muted-foreground: 217 15% 65%;
+  --accent: 33 54% 45%;
+  --accent-foreground: 222 47% 11%;
+  --destructive: 0 62.8% 42%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 215 25% 25%;
+  --input: 215 25% 25%;
+  --ring: 33 54% 55%;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--background));
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--primary));
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--primary) / 0.8);
+}
+

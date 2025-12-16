@@ -1,0 +1,33 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: user-service
+  
+  # MySQL Database
+  datasource:
+    url: jdbc:mysql://localhost:3306/shopai_users?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: root
+    password: 
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQL8Dialect
+
+# JWT Configuration
+jwt:
+  secret: U2hvcEFJMjAyNFNlY3JldEtleUZvckpXVFRva2VuR2VuZXJhdGlvbk11c3RCZTQ1NkJpdHNMb25nIQ==
+  expiration: 86400000 # 24 hours in milliseconds
+
+# Logging
+logging:
+  level:
+    com.shopai: DEBUG
+    org.springframework.security: DEBUG

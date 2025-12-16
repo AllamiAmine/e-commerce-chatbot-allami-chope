@@ -1,0 +1,16 @@
+server:
+  port: 8084
+
+spring:
+  application:
+    name: chatbot-service
+
+# Product Service URL for recommendations
+services:
+  product-service: http://localhost:8082
+  order-service: http://localhost:8083
+
+logging:
+  level:
+    com.shopai: DEBUG
+
