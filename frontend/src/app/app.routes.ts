@@ -1,7 +1,6 @@
 import { Routes } from '@angular/router';
 
 export const routes: Routes = [
-  // Public routes
   {
     path: '',
     loadComponent: () => import('./pages/home/home.component').then(m => m.HomeComponent)
@@ -27,7 +26,6 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/contact/contact.component').then(m => m.ContactComponent)
   },
   
-  // Shopping routes
   {
     path: 'cart',
     loadComponent: () => import('./pages/cart/cart.component').then(m => m.CartComponent)
@@ -41,7 +39,6 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/wishlist/wishlist.component').then(m => m.WishlistComponent)
   },
   
-  // User account routes
   {
     path: 'profile',
     loadComponent: () => import('./pages/profile/profile.component').then(m => m.ProfileComponent)
@@ -51,7 +48,6 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/orders/orders.component').then(m => m.OrdersComponent)
   },
   
-  // Admin routes
   {
     path: 'admin',
     loadComponent: () => import('./pages/admin/admin.component').then(m => m.AdminComponent)
@@ -81,7 +77,6 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/admin/chatbot/chatbot.component').then(m => m.AdminChatbotComponent)
   },
   
-  // 404 - Not Found
   {
     path: '404',
     loadComponent: () => import('./pages/not-found/not-found.component').then(m => m.NotFoundComponent)

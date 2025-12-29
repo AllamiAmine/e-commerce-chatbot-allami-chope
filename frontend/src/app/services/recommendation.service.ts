@@ -41,11 +41,6 @@ export class RecommendationService {
 
   constructor(private http: HttpClient) {}
 
-  /**
-   * Get personalized recommendations for a user
-   * @param userId User ID
-   * @param limit Number of recommendations (default: 10)
-   */
   getRecommendationsForUser(userId: number | string, limit: number = 10): Observable<UserRecommendationsResponse> {
     const params = new HttpParams().set('limit', limit.toString());
     
@@ -65,11 +60,6 @@ export class RecommendationService {
     );
   }
 
-  /**
-   * Get products similar to a given product
-   * @param productId Product ID
-   * @param limit Number of similar products (default: 5)
-   */
   getSimilarProducts(productId: number | string, limit: number = 5): Observable<SimilarProductsResponse> {
     const params = new HttpParams().set('limit', limit.toString());
     
@@ -88,10 +78,6 @@ export class RecommendationService {
     );
   }
 
-  /**
-   * Get popular products (for homepage or cold start)
-   * @param limit Number of products (default: 20)
-   */
   getPopularProducts(limit: number = 20): Observable<PopularProductsResponse> {
     const params = new HttpParams().set('limit', limit.toString());
     
@@ -109,27 +95,18 @@ export class RecommendationService {
     );
   }
 
-  /**
-   * Get recommendation product IDs for easier integration
-   */
   getRecommendedProductIds(userId: number | string, limit: number = 10): Observable<string[]> {
     return this.getRecommendationsForUser(userId, limit).pipe(
       map(response => response.recommendations.map(r => r.product_id))
     );
   }
 
-  /**
-   * Get similar product IDs
-   */
   getSimilarProductIds(productId: number | string, limit: number = 5): Observable<string[]> {
     return this.getSimilarProducts(productId, limit).pipe(
       map(response => response.similar_products.map(r => r.product_id))
     );
   }
 
-  /**
-   * Check if recommendation service is healthy
-   */
   checkHealth(): Observable<RecommendationHealth> {
     return this.http.get<RecommendationHealth>(`${this.apiUrl}/health`).pipe(
       catchError(() => of({

@@ -54,7 +54,6 @@ public class DataInitializer implements CommandLineRunner {
         Category beauty = categoryRepository.findByName("Beauté").orElse(null);
 
         List<Product> products = List.of(
-                // Electronics
                 Product.builder()
                         .name("Écouteurs Bluetooth Premium")
                         .description("Écouteurs sans fil avec réduction de bruit active et autonomie de 30h.")
@@ -84,7 +83,6 @@ public class DataInitializer implements CommandLineRunner {
                         .rating(4.8).reviews(198).stock(15)
                         .category(electronics).build(),
                 
-                // Accessories
                 Product.builder()
                         .name("Batterie Externe 100W")
                         .description("Power bank haute capacité avec charge rapide 100W.")
@@ -107,7 +105,6 @@ public class DataInitializer implements CommandLineRunner {
                         .rating(4.3).reviews(92).stock(80)
                         .category(accessories).build(),
                 
-                // Home
                 Product.builder()
                         .name("Lampe LED Intelligente")
                         .description("Lampe connectée avec 16 millions de couleurs.")
@@ -130,7 +127,6 @@ public class DataInitializer implements CommandLineRunner {
                         .rating(4.7).reviews(178).stock(35)
                         .category(home).build(),
                 
-                // Fashion
                 Product.builder()
                         .name("Montre de Luxe")
                         .description("Montre classique avec bracelet en cuir italien.")
@@ -148,7 +144,6 @@ public class DataInitializer implements CommandLineRunner {
 
                 ,
 
-                // Sports
                 Product.builder()
                         .name("Ballon de Football Premium")
                         .description("Ballon taille 5 cousu main, revêtement microfibre pour un contrôle précis.")
@@ -171,7 +166,6 @@ public class DataInitializer implements CommandLineRunner {
                         .rating(4.6).reviews(73).stock(55)
                         .category(sports).build(),
 
-                // Beauty / Lifestyle
                 Product.builder()
                         .name("Lunettes de Soleil Premium")
                         .description("Monture légère, verres polarisés UV400.")
@@ -194,7 +188,6 @@ public class DataInitializer implements CommandLineRunner {
                         .rating(4.3).reviews(112).stock(150)
                         .category(beauty).build(),
 
-                // Extra electronics/accessories to enrich catalog
                 Product.builder()
                         .name("Casque Audio Studio")
                         .description("Casque filaire circum-aural avec réduction passive du bruit.")

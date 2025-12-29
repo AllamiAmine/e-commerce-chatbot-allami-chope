@@ -10,16 +10,13 @@ import { AMAZON_PRODUCTS, AMAZON_CATEGORIES } from '../data/amazon-products';
 export class ProductService {
   private apiService = inject(ApiService);
   
-  // Signals for reactive data
   private productsSignal = signal<Product[]>([]);
   private categoriesSignal = signal<Category[]>([]);
   private loadingSignal = signal<boolean>(false);
   private useBackend = signal<boolean>(false); // Use static Amazon data by default
 
-  // Static fallback data - Amazon products
   private staticProducts: Product[] = AMAZON_PRODUCTS;
   
-  // Legacy static products (kept for reference)
   private legacyProducts: Product[] = [
     {
       id: 1,
@@ -482,7 +479,6 @@ export class ProductService {
     }
   }
   
-  // Public method to ensure data is loaded
   async ensureDataLoaded(): Promise<void> {
     await this.loadInitialData();
   }
@@ -490,7 +486,6 @@ export class ProductService {
   private async loadFromBackend(): Promise<void> {
     this.loadingSignal.set(true);
     try {
-      // Load products
       const productsResponse = await firstValueFrom(this.apiService.getProducts());
       if (productsResponse.success && productsResponse.data) {
         this.productsSignal.set(productsResponse.data);
@@ -498,7 +493,6 @@ export class ProductService {
         this.productsSignal.set(this.staticProducts);
       }
 
-      // Load categories
       const categoriesResponse = await firstValueFrom(this.apiService.getCategories());
       if (categoriesResponse.success && categoriesResponse.data) {
         this.categoriesSignal.set(categoriesResponse.data);
@@ -514,7 +508,6 @@ export class ProductService {
     }
   }
 
-  // Refresh data from backend
   async refreshData(): Promise<void> {
     await this.loadFromBackend();
   }
@@ -524,13 +517,11 @@ export class ProductService {
   }
 
   getProductById(id: number): Product | undefined {
-    // First check in loaded products signal
     const product = this.productsSignal().find(p => p.id === id);
     if (product) {
       return product;
     }
     
-    // Fallback to static products if signal is empty
     if (this.productsSignal().length === 0) {
       return this.staticProducts.find(p => p.id === id);
     }
@@ -539,7 +530,6 @@ export class ProductService {
   }
 
   async getProductByIdAsync(id: number): Promise<Product | undefined> {
-    // Ensure products are loaded first
     await this.ensureDataLoaded();
     
     if (this.useBackend()) {
@@ -553,7 +543,6 @@ export class ProductService {
       }
     }
     
-    // Fallback to local search
     return this.getProductById(id);
   }
 
@@ -655,7 +644,6 @@ export class ProductService {
     return this.getPromotionalProducts();
   }
 
-  // Toggle backend mode
   setBackendMode(enabled: boolean): void {
     this.useBackend.set(enabled);
     this.loadInitialData();

@@ -20,8 +20,6 @@ public class ProductController {
 
     private final ProductService productService;
 
-    // ==================== CATEGORIES ====================
-
     @GetMapping("/categories")
     public ResponseEntity<?> getAllCategories() {
         List<Category> categories = productService.getAllCategories();
@@ -68,8 +66,6 @@ public class ProductController {
         productService.deleteCategory(id);
         return ResponseEntity.ok(Map.of("success", true, "message", "Catégorie supprimée"));
     }
-
-    // ==================== PRODUCTS ====================
 
     @GetMapping
     public ResponseEntity<?> getAllProducts() {
@@ -201,7 +197,6 @@ public class ProductController {
         ));
     }
 
-    // Helper method using HashMap to avoid Map.of() limitations
     private Map<String, Object> mapProduct(Product p) {
         Map<String, Object> map = new HashMap<>();
         map.put("id", p.getId());

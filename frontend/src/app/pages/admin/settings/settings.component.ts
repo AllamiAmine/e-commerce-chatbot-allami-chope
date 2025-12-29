@@ -257,7 +257,6 @@ export class AdminSettingsComponent implements OnInit {
   }
 
   loadSettings(): void {
-    // Load from localStorage or backend
     const saved = localStorage.getItem('admin_settings');
     if (saved) {
       try {
@@ -269,7 +268,6 @@ export class AdminSettingsComponent implements OnInit {
   }
 
   saveSettings(): void {
-    // Save to localStorage (in production, save to backend)
     localStorage.setItem('admin_settings', JSON.stringify(this.settings));
     this.successMessage.set('Paramètres enregistrés avec succès');
     setTimeout(() => this.successMessage.set(''), 3000);

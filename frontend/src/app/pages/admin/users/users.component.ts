@@ -661,7 +661,6 @@ export class AdminUsersComponent implements OnInit {
   private apiService = inject(ApiService);
   private router = inject(Router);
 
-  // Controls visibility of the password field in the modal
   showPassword = false;
 
   searchQuery = '';
@@ -690,10 +689,8 @@ export class AdminUsersComponent implements OnInit {
     { value: 'admin' as UserRole, label: 'Admin', icon: '👑' },
   ];
 
-  // Users data - will be loaded from backend
   users: UserDisplay[] = [];
 
-  // Demo fallback users (used when backend is unavailable)
   private demoUsers: UserDisplay[] = [
     { id: '1', name: 'Admin ShopAI', email: 'admin@shopai.com', role: 'admin', phone: '+212 600 000 001', createdAt: new Date('2024-01-01'), status: 'active' },
     { id: '2', name: 'Vendeur Demo', email: 'seller@shopai.com', role: 'seller', phone: '+212 600 000 002', createdAt: new Date('2024-06-01'), status: 'active' },
@@ -732,7 +729,6 @@ export class AdminUsersComponent implements OnInit {
     this.isLoading.set(true);
     this.errorMessage.set('');
 
-    // Check if user is logged in and is admin
     const currentUser = this.authService.user();
     const token = localStorage.getItem('token');
     
@@ -764,7 +760,6 @@ export class AdminUsersComponent implements OnInit {
         console.log('📊 Raw users data from backend:', response.data);
         console.log('📊 Total users received:', response.data.length);
         
-        // Map backend users to UserDisplay format
         this.users = response.data.map((user: any, index: number) => {
           console.log(`  User ${index + 1}:`, {
             id: user.id,
@@ -775,7 +770,6 @@ export class AdminUsersComponent implements OnInit {
             phone: user.phone
           });
           
-          // Normalize role - handle any case variations
           let normalizedRole = 'client';
           if (user.role) {
             const roleStr = user.role.toString().toLowerCase();
@@ -786,7 +780,6 @@ export class AdminUsersComponent implements OnInit {
             } else if (roleStr === 'client' || roleStr === 'customer' || roleStr === 'user') {
               normalizedRole = 'client';
             } else {
-              // Unknown role, default to client but log it
               console.warn(`⚠️ Unknown role "${user.role}" for user ${user.id}, defaulting to client`);
               normalizedRole = 'client';
             }
@@ -823,7 +816,6 @@ export class AdminUsersComponent implements OnInit {
         this.errorMessage.set('Accès refusé. Votre compte n\'a pas les permissions d\'administrateur. Veuillez vous reconnecter avec un compte admin.');
       } else if (error.status === 401 || error.message?.includes('401') || error.message?.includes('session') || error.message?.includes('Unauthorized')) {
         this.errorMessage.set('Session expirée. Veuillez vous reconnecter.');
-        // Optionally redirect to login
         setTimeout(() => {
           this.authService.logout();
         }, 2000);
@@ -849,11 +841,9 @@ export class AdminUsersComponent implements OnInit {
       if (s === 'active' || s === 'enabled' || s === 'true' || s === '1') return 'active';
       if (s === 'banned' || s === 'blocked' || s === 'ban') return 'banned';
       if (s === 'inactive' || s === 'disabled' || s === 'false' || s === '0') return 'inactive';
-      // Default to active for unknown statuses
       console.warn(`⚠️ Unknown status "${status}", defaulting to active`);
       return 'active';
     }
-    // Default to active if status type is unknown
     return 'active';
   }
 
@@ -955,7 +945,6 @@ export class AdminUsersComponent implements OnInit {
     this.showPassword = false;
     this.errorMessage.set('');
     this.successMessage.set('');
-    // Reset form data
     this.formData = {
       name: '',
       email: '',
@@ -967,7 +956,6 @@ export class AdminUsersComponent implements OnInit {
   }
 
   async saveUser(): Promise<void> {
-    // Validation
     if (!this.formData.name?.trim()) {
       this.errorMessage.set('Le nom est requis');
       return;
@@ -978,7 +966,6 @@ export class AdminUsersComponent implements OnInit {
       return;
     }
 
-    // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(this.formData.email)) {
       this.errorMessage.set('Format d\'email invalide');
@@ -991,7 +978,6 @@ export class AdminUsersComponent implements OnInit {
 
     try {
       if (this.editingUser()) {
-        // Update existing user
         const response = await firstValueFrom(
           this.apiService.updateUser(Number(this.editingUser()!.id), {
             name: this.formData.name,
@@ -1003,7 +989,6 @@ export class AdminUsersComponent implements OnInit {
         );
 
         if (response.success) {
-          // Reload users from backend
           await this.loadUsersFromBackend();
           this.successMessage.set('Utilisateur mis à jour avec succès');
           setTimeout(() => this.successMessage.set(''), 3000);
@@ -1012,7 +997,6 @@ export class AdminUsersComponent implements OnInit {
           this.errorMessage.set(response.message || 'Erreur lors de la mise à jour');
         }
       } else {
-        // Create new user
         const response = await firstValueFrom(
           this.apiService.createUser({
             name: this.formData.name,
@@ -1025,7 +1009,6 @@ export class AdminUsersComponent implements OnInit {
         );
 
         if (response.success) {
-          // Reload users from backend
           await this.loadUsersFromBackend();
           this.successMessage.set('Utilisateur créé avec succès dans MySQL');
           setTimeout(() => this.successMessage.set(''), 3000);
@@ -1039,7 +1022,6 @@ export class AdminUsersComponent implements OnInit {
       const errorMsg = error?.error?.message || error?.message || 'Erreur lors de l\'enregistrement';
       this.errorMessage.set(errorMsg);
       
-      // Scroll to top to show error message
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } finally {
       this.isLoading.set(false);

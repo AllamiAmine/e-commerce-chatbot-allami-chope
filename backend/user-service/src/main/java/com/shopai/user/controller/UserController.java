@@ -19,8 +19,6 @@ public class UserController {
 
     private final UserService userService;
 
-    // ==================== PUBLIC ENDPOINTS ====================
-
     @GetMapping("/public/count")
     public ResponseEntity<?> getPublicStats() {
         return ResponseEntity.ok(Map.of(
@@ -29,8 +27,6 @@ public class UserController {
                 "sellers", userService.countUsersByRole(User.Role.SELLER)
         ));
     }
-
-    // ==================== AUTHENTICATED ENDPOINTS ====================
 
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser(@AuthenticationPrincipal User user) {
@@ -54,7 +50,6 @@ public class UserController {
             @RequestBody User updatedData
     ) {
         try {
-            // Users can only update their own profile info, not role/status
             User user = userService.getUserById(currentUser.getId())
                     .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
             
@@ -77,8 +72,6 @@ public class UserController {
             ));
         }
     }
-
-    // ==================== ADMIN ENDPOINTS ====================
 
     @GetMapping("/admin/all")
     @PreAuthorize("hasRole('ADMIN')")
@@ -241,7 +234,6 @@ public class UserController {
         ));
     }
 
-    // Helper method
     private Map<String, Object> mapUserToResponse(User user) {
         return Map.of(
                 "id", user.getId(),

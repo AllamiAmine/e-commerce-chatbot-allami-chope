@@ -453,7 +453,6 @@ export class HeaderComponent implements OnInit {
   private searchTimeout: any;
 
   ngOnInit(): void {
-    // Close search when clicking outside
     effect(() => {
       if (this.showSearchResults()) {
         setTimeout(() => {
@@ -467,7 +466,6 @@ export class HeaderComponent implements OnInit {
 
   @HostListener('document:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent): void {
-    // Cmd+K or Ctrl+K to focus search
     if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
       event.preventDefault();
       const searchInput = document.querySelector('input[placeholder*="Rechercher"]') as HTMLInputElement;
@@ -490,7 +488,6 @@ export class HeaderComponent implements OnInit {
     this.isSearching.set(true);
     this.showSearchResults.set(true);
 
-    // Debounce search
     clearTimeout(this.searchTimeout);
     this.searchTimeout = setTimeout(() => {
       this.performSearch(query);
@@ -499,7 +496,6 @@ export class HeaderComponent implements OnInit {
 
   private async performSearch(query: string): Promise<void> {
     try {
-      // Search products by name and description
       const allProducts = this.productService.getProducts();
       const results = allProducts.filter(product => {
         const searchLower = query.toLowerCase();
@@ -511,7 +507,6 @@ export class HeaderComponent implements OnInit {
         return nameMatch || descMatch || categoryMatch;
       });
 
-      // Sort by relevance (exact name match first, then description)
       results.sort((a, b) => {
         const aNameMatch = a.name.toLowerCase().includes(query.toLowerCase());
         const bNameMatch = b.name.toLowerCase().includes(query.toLowerCase());
@@ -543,17 +538,14 @@ export class HeaderComponent implements OnInit {
   }
 
   openChatbotWithQuery(): void {
-    // Store query for chatbot and navigate to home
     sessionStorage.setItem('chatbotQuery', this.searchQuery());
     this.router.navigate(['/']);
     this.closeSearch();
     
-    // Trigger chatbot to open after navigation
     setTimeout(() => {
       const chatbotButton = document.querySelector('button[class*="fixed bottom-6 right-6"]') as HTMLElement;
       if (chatbotButton) {
         chatbotButton.click();
-        // Send the query to chatbot
         setTimeout(() => {
           const chatbotInput = document.querySelector('input[placeholder*="Posez votre question"]') as HTMLInputElement;
           if (chatbotInput) {
@@ -621,7 +613,6 @@ export class HeaderComponent implements OnInit {
   scrollToSection(sectionId: string, event: Event): void {
     event.preventDefault();
     
-    // Navigate to home if not already there
     if (this.router.url !== '/') {
       this.router.navigate(['/']).then(() => {
         setTimeout(() => this.scrollToElement(sectionId), 100);

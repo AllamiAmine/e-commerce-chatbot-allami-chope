@@ -1,27 +1,19 @@
-"""
-Simple training script for the ShopAI Recommendation Model
-Uses MySQL database data
-"""
 import os
 import sys
 from pathlib import Path
 
-# Ensure correct imports
 sys.path.insert(0, str(Path(__file__).parent))
 
 import pandas as pd
 import mysql.connector
 from loguru import logger
 
-# Create necessary directories
 Path("models").mkdir(exist_ok=True)
 Path("logs").mkdir(exist_ok=True)
 
-# Import our recommender
 from app.models.recommender import HybridRecommender
 
 def load_interactions_from_db():
-    """Load training data from MySQL"""
     print("Loading interactions from database...")
     
     conn = mysql.connector.connect(
@@ -60,7 +52,6 @@ def load_interactions_from_db():
     return df
 
 def load_products_from_db():
-    """Load product data from MySQL"""
     print("Loading products from database...")
     
     conn = mysql.connector.connect(
@@ -96,7 +87,6 @@ def main():
     print("=" * 60)
     print()
     
-    # Load data
     interactions_df = load_interactions_from_db()
     products_df = load_products_from_db()
     
@@ -104,22 +94,18 @@ def main():
         print("ERROR: No interactions found in database!")
         return
     
-    # Train model
     print("\nTraining AI model...")
     model = HybridRecommender(n_factors=32, n_iterations=20)
     model.fit(interactions_df, products_df)
     
-    # Save model
     model_path = "models/recommender_model.joblib"
     model.save(model_path)
     print(f"\nModel saved to: {model_path}")
     
-    # Test recommendations
     print("\n" + "=" * 60)
     print("  Testing Recommendations")
     print("=" * 60)
     
-    # Test user recommendations
     test_user = list(model.user_id_map.keys())[0]
     user_recs = model.recommend_for_user(test_user, n_recommendations=5)
     

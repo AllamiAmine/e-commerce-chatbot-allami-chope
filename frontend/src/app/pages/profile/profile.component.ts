@@ -384,7 +384,6 @@ export class ProfileComponent {
   }
 
   saveProfile(): void {
-    // Save profile logic
     this.isEditing = false;
   }
 

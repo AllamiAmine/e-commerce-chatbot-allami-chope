@@ -101,9 +101,7 @@ export class OrderService {
       const response = await firstValueFrom(this.apiService.createOrder(orderData));
       
       if (response.success && response.data) {
-        // Clear cart after successful order
         this.cartService.clearCart();
-        // Reload orders
         await this.loadUserOrders();
         return { success: true, message: 'Commande créée avec succès', order: response.data };
       }

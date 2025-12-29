@@ -205,7 +205,6 @@ import { RouterLink } from '@angular/router';
 export class HeroComponent {
   onImageError(event: Event): void {
     const img = event.target as HTMLImageElement;
-    // Fallback to a generic product placeholder
     img.src = 'https://images.unsplash.com/photo-1560393464-5c69a73c5770?w=800&h=800&fit=crop&q=80';
   }
 }

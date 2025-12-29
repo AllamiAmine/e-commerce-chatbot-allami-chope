@@ -14,7 +14,6 @@ export class AuthService {
   private currentUser = signal<User | null>(null);
   private useBackend = signal<boolean>(true); // Toggle to use backend or demo mode
   
-  // Public computed signals
   readonly user = this.currentUser.asReadonly();
   readonly isLoggedIn = computed(() => this.currentUser()?.isLoggedIn ?? false);
   readonly userRole = computed(() => this.currentUser()?.role ?? null);
@@ -22,7 +21,6 @@ export class AuthService {
   readonly isSeller = computed(() => this.currentUser()?.role === 'seller');
   readonly isClient = computed(() => this.currentUser()?.role === 'client');
 
-  // Demo users for fallback
   private demoUsers: Record<string, { password: string; user: Omit<User, 'isLoggedIn'> }> = {
     'admin@shopai.com': {
       password: 'admin123',
@@ -71,7 +69,6 @@ export class AuthService {
         const user = JSON.parse(userStr);
         if (user.isLoggedIn) {
           this.currentUser.set(user);
-          // Validate token if exists
           if (token && this.useBackend()) {
             this.validateSession();
           }
@@ -87,7 +84,6 @@ export class AuthService {
     try {
       await firstValueFrom(this.apiService.validateToken());
     } catch {
-      // Token invalid, clear session
       this.logout();
     }
   }
@@ -100,7 +96,6 @@ export class AuthService {
   }
 
   async login(credentials: LoginCredentials): Promise<{ success: boolean; message: string; user?: User }> {
-    // Try backend first
     if (this.useBackend()) {
       try {
         const response = await firstValueFrom(
@@ -127,11 +122,9 @@ export class AuthService {
         return { success: false, message: response.message || 'Échec de la connexion' };
       } catch (error: any) {
         console.warn('Backend login failed, falling back to demo mode:', error.message);
-        // Fall back to demo mode
       }
     }
 
-    // Demo mode fallback
     return new Promise((resolve) => {
       setTimeout(() => {
         const demoUser = this.demoUsers[credentials.email.toLowerCase()];
@@ -152,7 +145,6 @@ export class AuthService {
   }
 
   async register(data: RegisterData): Promise<{ success: boolean; message: string; user?: User }> {
-    // Try backend first
     if (this.useBackend()) {
       try {
         const response = await firstValueFrom(
@@ -189,7 +181,6 @@ export class AuthService {
       }
     }
 
-    // Demo mode fallback
     return new Promise((resolve) => {
       setTimeout(() => {
         if (this.demoUsers[data.email.toLowerCase()]) {
@@ -244,7 +235,6 @@ export class AuthService {
     }
   }
 
-  // Toggle backend mode
   setBackendMode(enabled: boolean): void {
     this.useBackend.set(enabled);
   }
@@ -253,16 +243,12 @@ export class AuthService {
     return this.useBackend();
   }
 
-  // Google Sign-In (Mode simulation pour démo)
   async loginWithGoogle(): Promise<{ success: boolean; message: string; user?: User }> {
-    // Utiliser directement le mode simulation pour éviter les erreurs de configuration
     return this.simulateGoogleLogin();
   }
 
   private async simulateGoogleLogin(): Promise<{ success: boolean; message: string; user?: User }> {
-    // Simulation Google Sign-In pour démo (sans configuration OAuth)
     return new Promise((resolve) => {
-      // Générer un email aléatoire pour la démo
       const randomId = Math.floor(Math.random() * 10000);
       const demoEmails = [
         'demo.user@gmail.com',
@@ -290,7 +276,6 @@ export class AuthService {
   }
 }
 
-// Declare Google Sign-In types
 declare const google: {
   accounts: {
     id: {

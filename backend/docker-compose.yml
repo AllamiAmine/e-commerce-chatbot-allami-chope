@@ -1,7 +1,6 @@
 version: '3.8'
 
 services:
-  # MySQL Database
   mysql:
     image: mysql:8.0
     container_name: shopai-mysql
@@ -21,7 +20,6 @@ services:
       timeout: 5s
       retries: 5
 
-  # API Gateway
   api-gateway:
     build: ./api-gateway
     container_name: shopai-gateway
@@ -37,7 +35,6 @@ services:
     networks:
       - shopai-network
 
-  # User Service
   user-service:
     build: ./user-service
     container_name: shopai-user-service
@@ -54,7 +51,6 @@ services:
     networks:
       - shopai-network
 
-  # Product Service
   product-service:
     build: ./product-service
     container_name: shopai-product-service
@@ -71,7 +67,6 @@ services:
     networks:
       - shopai-network
 
-  # Order Service
   order-service:
     build: ./order-service
     container_name: shopai-order-service
@@ -88,7 +83,6 @@ services:
     networks:
       - shopai-network
 
-  # ChatBot Service
   chatbot-service:
     build: ./chatbot-service
     container_name: shopai-chatbot-service
@@ -103,7 +97,6 @@ services:
     networks:
       - shopai-network
 
-  # AI Recommendation Service (Python)
   recommendation-service:
     build: ./recommendation-service
     container_name: shopai-recommendation-service

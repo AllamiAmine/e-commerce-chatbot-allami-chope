@@ -223,13 +223,11 @@ export class AdminAnalyticsComponent implements OnInit {
     this.isLoading.set(true);
 
     try {
-      // Load users
       const usersResponse = await firstValueFrom(this.apiService.getAllUsers());
       const users = usersResponse.success && usersResponse.data ? usersResponse.data : [];
       this.activeUsers.set(users.filter((u: any) => u.status === 'ACTIVE' || u.status === 'active').length);
       this.newUsers.set(users.length); // Simplified
 
-      // Load orders
       let orders: any[] = [];
       try {
         const ordersResponse = await firstValueFrom(this.apiService.getOrders());
@@ -238,23 +236,18 @@ export class AdminAnalyticsComponent implements OnInit {
         console.warn('Could not load orders:', error);
       }
 
-      // Calculate metrics
       const totalRevenue = orders.reduce((sum, o) => sum + (o.total || o.totalAmount || 0), 0);
       const avgOrderValue = orders.length > 0 ? totalRevenue / orders.length : 0;
       const conversionRate = this.activeUsers() > 0 ? (orders.length / this.activeUsers()) * 100 : 0;
 
-      // Generate sales data (last 7 days)
       const salesData = this.generateSalesData(orders);
       const ordersData = this.generateOrdersData(orders);
 
-      // Top products
       const topProducts = this.calculateTopProducts(orders);
 
-      // Category stats
       const categories = this.productService.getCategories();
       const categoryStats = this.calculateCategoryStats(categories, orders);
 
-      // Order status stats
       const statusStats = this.calculateOrderStatusStats(orders);
 
       this.keyMetrics.set([

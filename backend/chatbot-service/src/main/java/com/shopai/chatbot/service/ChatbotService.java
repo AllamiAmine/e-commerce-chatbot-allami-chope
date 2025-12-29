@@ -20,13 +20,11 @@ public class ChatbotService {
     private String productServiceUrl;
 
     public Map<String, Object> processMessage(String message, Long userId) {
-        // Analyze the message with NLP
         Map<String, Object> analysis = nlpService.analyzeMessage(message);
         String intent = (String) analysis.get("intent");
         @SuppressWarnings("unchecked")
         Map<String, Object> entities = (Map<String, Object>) analysis.get("entities");
 
-        // Generate response based on intent
         Map<String, Object> response = generateResponse(intent, entities, userId);
         response.put("analysis", analysis);
         
@@ -199,7 +197,6 @@ public class ChatbotService {
         );
     }
 
-    // Helper methods to fetch data from Product Service
     @SuppressWarnings("unchecked")
     private List<Object> fetchProducts(String category) {
         try {

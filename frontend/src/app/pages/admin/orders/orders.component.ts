@@ -313,7 +313,6 @@ export class AdminOrdersComponent implements OnInit {
           shippingAddress: o.shippingAddress || 'Non spécifiée'
         }));
 
-        // Update stats
         this.orderStats.set([
           { status: '', label: 'Toutes', icon: '📊', count: this.orders.length },
           { status: 'pending', label: 'En attente', icon: '⏳', count: this.orders.filter(o => o.status === 'pending').length },

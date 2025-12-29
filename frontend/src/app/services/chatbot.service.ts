@@ -18,9 +18,6 @@ export class ChatbotService {
   private useBackend = true;
   private useAIRecommendations = true; // Enable AI-powered recommendations
 
-  /**
-   * Envoie un message au chatbot (backend ou local)
-   */
   async sendMessage(message: string): Promise<{ text: string; products?: Product[]; category?: Category; suggestions?: string[] }> {
     if (this.useBackend) {
       try {
@@ -42,15 +39,10 @@ export class ChatbotService {
       }
     }
 
-    // Fallback to local NLP
     const nlpResult = this.analyzeMessage(message);
     return this.generateResponse(nlpResult);
   }
 
-  /**
-   * Analyse NLP du message utilisateur
-   * Détecte l'intention et extrait les entités
-   */
   analyzeMessage(input: string): NLPResult {
     const normalizedInput = input.toLowerCase().trim();
     const words = normalizedInput.split(/\s+/);
@@ -66,9 +58,6 @@ export class ChatbotService {
     };
   }
 
-  /**
-   * Génère une réponse intelligente basée sur l'analyse NLP
-   */
   generateResponse(nlpResult: NLPResult): { text: string; products?: Product[]; category?: Category; suggestions?: string[] } {
     const { intent, entities } = nlpResult;
     
@@ -188,7 +177,6 @@ export class ChatbotService {
     return { category: detectedCategory, productName: detectedProduct, priceRange, keywords };
   }
 
-  // Response handlers
   private handleGreeting(): { text: string; suggestions?: string[] } {
     const greetings = [
       `Bonjour ! 😊 Ravi de vous voir sur ShopAI. Je suis votre assistant intelligent, prêt à vous aider.<br><br>Que recherchez-vous ?`,
@@ -252,7 +240,6 @@ export class ChatbotService {
   }
 
   private handleRecommendation(entities: NLPResult['entities']): { text: string; products?: Product[]; suggestions?: string[] } {
-    // Use local products as fallback
     const products = this.productService.getTopRatedProducts(4);
     return {
       text: `💡 <strong>Recommandations IA</strong><br><br>🤖 L'intelligence artificielle analyse vos préférences...<br>Voici les produits sélectionnés pour vous :`,
@@ -261,16 +248,11 @@ export class ChatbotService {
     };
   }
 
-  /**
-   * Get AI-powered recommendations asynchronously
-   * Called separately after the initial response
-   */
   async getAIRecommendations(limit: number = 4): Promise<{ text: string; products: Product[]; strategy: string }> {
     try {
       const user = this.authService.user();
       
       if (user && this.useAIRecommendations) {
-        // Get personalized recommendations for logged-in user
         const response = await firstValueFrom(
           this.recommendationService.getRecommendationsForUser(user.id, limit)
         );
@@ -288,7 +270,6 @@ Basées sur votre profil et vos préférences, notre IA vous suggère :`,
         }
       }
       
-      // Fallback to popular products for non-logged users
       const popularResponse = await firstValueFrom(
         this.recommendationService.getPopularProducts(limit)
       );
@@ -305,7 +286,6 @@ Les produits les plus appréciés par nos clients :`,
         };
       }
       
-      // Ultimate fallback
       return {
         text: `💡 <strong>Nos meilleures ventes</strong>`,
         products: this.productService.getTopRatedProducts(limit),
@@ -322,9 +302,6 @@ Les produits les plus appréciés par nos clients :`,
     }
   }
 
-  /**
-   * Get similar products using AI
-   */
   async getAISimilarProducts(productId: number, limit: number = 4): Promise<{ text: string; products: Product[] }> {
     try {
       const response = await firstValueFrom(
@@ -357,9 +334,6 @@ Notre IA a trouvé ces produits qui pourraient vous intéresser :`,
     }
   }
 
-  /**
-   * Get products by their IDs
-   */
   private getProductsByIds(ids: number[]): Product[] {
     const allProducts = this.productService.getProducts();
     return ids
@@ -473,7 +447,6 @@ Voulez-vous plus de détails ?`,
     };
   }
 
-  // Toggle backend mode
   setBackendMode(enabled: boolean): void {
     this.useBackend = enabled;
   }

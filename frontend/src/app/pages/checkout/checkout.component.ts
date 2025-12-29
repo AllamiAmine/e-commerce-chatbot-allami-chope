@@ -629,17 +629,14 @@ export class CheckoutComponent implements OnInit {
   isEmpty = signal(false);
 
   ngOnInit(): void {
-    // Check if cart is empty
     if (this.cartService.cartItems().length === 0) {
       this.isEmpty.set(true);
-      // Redirect after a short delay to show message
       setTimeout(() => {
         this.router.navigate(['/cart']);
       }, 2000);
       return;
     }
 
-    // Pre-fill with user data if logged in
     const user = this.authService.user();
     if (user) {
       this.shipping.fullName = user.name;
@@ -648,7 +645,6 @@ export class CheckoutComponent implements OnInit {
     }
   }
 
-  // Use computed signals for better performance
   shippingCost = computed(() => {
     const option = this.shippingOptions.find(o => o.id === this.selectedShipping());
     return option?.price || 0;
@@ -665,7 +661,6 @@ export class CheckoutComponent implements OnInit {
     return Math.max(0, total); // Ensure total is never negative
   });
 
-  // Legacy getters for compatibility (deprecated, use computed signals)
   getShippingCost(): number {
     return this.shippingCost();
   }
@@ -710,11 +705,8 @@ export class CheckoutComponent implements OnInit {
 
   formatCardNumber(event: Event): void {
     const input = event.target as HTMLInputElement;
-    // Remove all non-digits
     let value = input.value.replace(/\D/g, '');
-    // Limit to 16 digits
     value = value.substring(0, 16);
-    // Add spaces every 4 digits
     value = value.replace(/(\d{4})(?=\d)/g, '$1 ');
     this.payment.cardNumber = value;
     input.value = value;
@@ -722,11 +714,8 @@ export class CheckoutComponent implements OnInit {
 
   formatExpiry(event: Event): void {
     const input = event.target as HTMLInputElement;
-    // Remove all non-digits
     let value = input.value.replace(/\D/g, '');
-    // Limit to 4 digits
     value = value.substring(0, 4);
-    // Add slash after 2 digits
     if (value.length >= 2) {
       value = value.substring(0, 2) + '/' + value.substring(2, 4);
     }
@@ -736,7 +725,6 @@ export class CheckoutComponent implements OnInit {
 
   formatCvc(event: Event): void {
     const input = event.target as HTMLInputElement;
-    // Remove all non-digits and limit to 4 digits
     this.payment.cardCvc = input.value.replace(/\D/g, '').substring(0, 4);
     input.value = this.payment.cardCvc;
   }
@@ -771,7 +759,6 @@ export class CheckoutComponent implements OnInit {
 
   nextStep(): void {
     if (this.currentStep() === 3) {
-      // Place order
       this.orderNumber = 'SHP-' + Date.now().toString().slice(-8);
       this.cartService.clearCart();
       this.currentStep.set(4);

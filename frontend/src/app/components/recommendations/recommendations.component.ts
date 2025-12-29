@@ -171,7 +171,6 @@ export class RecommendationsComponent implements OnInit {
     const user = this.authService.user();
     
     if (!user?.id) {
-      // Fallback to popular products for guests
       this.loadPopularProducts();
       return;
     }
@@ -180,8 +179,6 @@ export class RecommendationsComponent implements OnInit {
       .subscribe({
         next: (response) => {
           this.strategy = response.strategy_used;
-          // Use local products as the AI model has synthetic IDs
-          // In production, you'd map these to real product IDs
           this.products = this.getRandomProducts(this.limit);
           this.loading = false;
         },
@@ -201,7 +198,6 @@ export class RecommendationsComponent implements OnInit {
       .subscribe({
         next: (response) => {
           this.strategy = 'item_similarity';
-          // Use local products - get products from same category
           const currentProduct = this.productService.getProductById(this.productId!);
           if (currentProduct?.categoryId) {
             this.products = this.productService.getProductsByCategory(currentProduct.categoryId)
@@ -213,7 +209,6 @@ export class RecommendationsComponent implements OnInit {
           this.loading = false;
         },
         error: () => {
-          // Fallback to category-based similarity
           const currentProduct = this.productService.getProductById(this.productId!);
           if (currentProduct?.categoryId) {
             this.products = this.productService.getProductsByCategory(currentProduct.categoryId)
@@ -233,12 +228,10 @@ export class RecommendationsComponent implements OnInit {
     this.recommendationService.getPopularProducts(this.limit)
       .subscribe({
         next: () => {
-          // Use top-rated products from local service as "popular"
           this.products = this.productService.getTopRatedProducts(this.limit);
           this.loading = false;
         },
         error: () => {
-          // Fallback to top-rated
           this.products = this.productService.getTopRatedProducts(this.limit);
           this.loading = false;
         }
@@ -251,7 +244,6 @@ export class RecommendationsComponent implements OnInit {
       ? allProducts.filter(p => p.id !== excludeId)
       : allProducts;
     
-    // Shuffle and take first 'count' products
     const shuffled = [...filtered].sort(() => Math.random() - 0.5);
     return shuffled.slice(0, count);
   }

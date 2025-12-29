@@ -10,12 +10,10 @@ import java.util.regex.Pattern;
 @Slf4j
 public class NLPService {
 
-    // Intent patterns using HashMap
     private final Map<String, List<String>> intentPatterns;
     private final Map<String, List<String>> categoryKeywords;
 
     public NLPService() {
-        // Initialize intent patterns
         intentPatterns = new HashMap<>();
         intentPatterns.put("GREETING", List.of("bonjour", "salut", "hello", "hey", "coucou", "bonsoir", "hi", "salam"));
         intentPatterns.put("PRODUCT_SEARCH", List.of("cherche", "recherche", "trouve", "trouver", "où", "avoir", "acheter", "besoin", "veux", "voudrais"));
@@ -29,7 +27,6 @@ public class NLPService {
         intentPatterns.put("RETURN", List.of("retour", "rembours", "échanger", "annuler"));
         intentPatterns.put("THANKS", List.of("merci", "super", "parfait", "génial", "excellent"));
 
-        // Initialize category keywords
         categoryKeywords = new HashMap<>();
         categoryKeywords.put("Électronique", List.of("électronique", "electronique", "tech", "gadget", "écouteur", "montre", "caméra", "drone", "bluetooth"));
         categoryKeywords.put("Accessoires", List.of("accessoire", "câble", "cable", "batterie", "chargeur", "support", "housse"));
@@ -43,13 +40,10 @@ public class NLPService {
         String normalized = message.toLowerCase().trim();
         String[] words = normalized.split("\\s+");
 
-        // Detect intent
         String intent = detectIntent(normalized, words);
         
-        // Extract entities
         Map<String, Object> entities = extractEntities(normalized);
         
-        // Calculate confidence
         double confidence = calculateConfidence(normalized, intent);
 
         Map<String, Object> result = new HashMap<>();
@@ -84,7 +78,6 @@ public class NLPService {
         Map<String, Object> entities = new HashMap<>();
         List<String> keywords = new ArrayList<>();
 
-        // Detect category
         for (Map.Entry<String, List<String>> entry : categoryKeywords.entrySet()) {
             for (String keyword : entry.getValue()) {
                 if (input.contains(keyword)) {
@@ -96,7 +89,6 @@ public class NLPService {
             if (entities.containsKey("category")) break;
         }
 
-        // Extract price range
         Pattern pricePattern = Pattern.compile("(\\d+)\\s*(mad|dh|dirhams?)?", Pattern.CASE_INSENSITIVE);
         var matcher = pricePattern.matcher(input);
         if (matcher.find()) {

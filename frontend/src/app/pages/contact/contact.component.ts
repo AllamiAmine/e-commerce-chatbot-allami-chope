@@ -280,7 +280,6 @@ export class ContactComponent {
 
     this.isSubmitting.set(true);
     
-    // Simulate API call
     setTimeout(() => {
       this.isSubmitting.set(false);
       this.submitted.set(true);

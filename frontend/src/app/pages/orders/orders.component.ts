@@ -251,7 +251,6 @@ export class OrdersComponent {
     { status: 'delivered', label: 'Livrée' }
   ];
 
-  // Demo orders
   orders: Order[] = [
     {
       id: 'SHP-12458963',

@@ -186,7 +186,6 @@ export class CartComponent {
   cartService = inject(CartService);
   authService = inject(AuthService);
 
-  // Use computed signals for better performance
   shipping = computed(() => this.cartService.cartItems().length > 0 ? 99.9 : 0);
   tax = computed(() => this.cartService.subtotal() * 0.1);
   total = computed(() => this.cartService.subtotal() + this.shipping() + this.tax());

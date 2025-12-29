@@ -296,14 +296,12 @@ export class ProductDetailComponent implements OnInit {
 
       console.log('🔍 Loading product with ID:', id);
       
-      // Try async method first
       const product = await this.productService.getProductByIdAsync(id);
       
       if (product) {
         this.product = product;
         console.log('✅ Product loaded:', product.name);
       } else {
-        // Fallback to sync method
         const syncProduct = this.productService.getProductById(id);
         if (syncProduct) {
           this.product = syncProduct;
@@ -323,7 +321,6 @@ export class ProductDetailComponent implements OnInit {
 
   addToCart(): void {
     if (this.product) {
-      // Check stock availability
       if (this.product.stock !== undefined && this.product.stock !== null && this.product.stock === 0) {
         alert('Ce produit est actuellement en rupture de stock.');
         return;
@@ -337,7 +334,6 @@ export class ProductDetailComponent implements OnInit {
 
   toggleWishlist(): void {
     this.isInWishlist = !this.isInWishlist;
-    // TODO: Implement wishlist service
     if (this.isInWishlist) {
       console.log('Added to wishlist:', this.product?.name);
     } else {

@@ -27,7 +27,6 @@ export interface Category {
   keywords?: string[];
 }
 
-// Enhanced Message types for intelligent chatbot
 export interface Message {
   id: string;
   type: 'user' | 'bot';

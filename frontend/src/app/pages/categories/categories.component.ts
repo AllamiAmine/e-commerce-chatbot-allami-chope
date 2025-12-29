@@ -239,7 +239,6 @@ export class CategoriesComponent implements OnInit {
   private productService = inject(ProductService);
   private cartService = inject(CartService);
 
-  // Use Amazon products directly for guaranteed data
   categories: Category[] = AMAZON_CATEGORIES;
   allProducts: Product[] = AMAZON_PRODUCTS;
   
@@ -248,7 +247,6 @@ export class CategoriesComponent implements OnInit {
   sortBy = 'default';
 
   ngOnInit(): void {
-    // Also try to get from service (in case backend is available)
     const serviceCategories = this.productService.getCategories();
     const serviceProducts = this.productService.getProducts();
     
@@ -265,7 +263,6 @@ export class CategoriesComponent implements OnInit {
       ? this.allProducts 
       : this.allProducts.filter(p => p.categoryId === this.selectedCategory());
     
-    // Apply sorting
     switch (this.sortBy) {
       case 'price-asc':
         return [...products].sort((a, b) => a.price - b.price);

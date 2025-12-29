@@ -44,12 +44,10 @@ public class UserService implements UserDetailsService {
     }
 
     public AuthResponse register(RegisterRequest request) {
-        // Check if email exists
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("Cet email est déjà utilisé");
         }
 
-        // Create user
         User user = User.builder()
                 .name(request.getName())
                 .email(request.getEmail())
@@ -61,7 +59,6 @@ public class UserService implements UserDetailsService {
 
         userRepository.save(Objects.requireNonNull(user, "User ne doit pas être null"));
 
-        // Generate token
         String token = jwtService.generateToken(user);
 
         return AuthResponse.builder()
@@ -171,17 +168,14 @@ public class UserService implements UserDetailsService {
     }
 
     public User createUser(String name, String email, String phone, User.Role role, User.Status status, String password) {
-        // Check if email exists
         if (userRepository.existsByEmail(email)) {
             throw new RuntimeException("Cet email est déjà utilisé");
         }
 
-        // Generate default password if not provided
         String finalPassword = password != null && !password.isEmpty() 
             ? password 
-            : "TempPass123!"; // Default password that should be changed
+            : "TempPass123!";
 
-        // Create user
         User user = User.builder()
                 .name(name)
                 .email(email)

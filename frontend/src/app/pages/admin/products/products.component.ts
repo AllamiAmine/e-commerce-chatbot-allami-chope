@@ -374,7 +374,6 @@ export class AdminProductsComponent implements OnInit {
         }));
         console.log('✅ Products loaded from MySQL:', this.products.length);
       } else {
-        // Fallback to static data
         this.products = this.productService.getProducts();
       }
     } catch (error: any) {
@@ -507,7 +506,6 @@ export class AdminProductsComponent implements OnInit {
       };
 
       if (this.editingProduct()) {
-        // Update existing product
         const response = await firstValueFrom(
           this.apiService.updateProduct(this.editingProduct()!.id, productData)
         );
@@ -521,7 +519,6 @@ export class AdminProductsComponent implements OnInit {
           this.errorMessage.set(response.message || 'Erreur lors de la mise à jour');
         }
       } else {
-        // Create new product
         const response = await firstValueFrom(
           this.apiService.createProduct(productData)
         );

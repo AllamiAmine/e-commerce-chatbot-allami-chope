@@ -27,7 +27,6 @@ spring:
             allowCredentials: true
       
       routes:
-        # User Service Routes
         - id: user-service-auth
           uri: http://localhost:8081
           predicates:
@@ -38,25 +37,21 @@ spring:
           predicates:
             - Path=/api/users/**
         
-        # Product Service Routes
         - id: product-service
           uri: http://localhost:8082
           predicates:
             - Path=/api/products/**
         
-        # Order Service Routes
         - id: order-service
           uri: http://localhost:8083
           predicates:
             - Path=/api/orders/**
         
-        # ChatBot Service Routes
         - id: chatbot-service
           uri: http://localhost:8084
           predicates:
             - Path=/api/chatbot/**
         
-        # AI Recommendation Service Routes
         - id: recommendation-service
           uri: http://localhost:8085
           predicates:

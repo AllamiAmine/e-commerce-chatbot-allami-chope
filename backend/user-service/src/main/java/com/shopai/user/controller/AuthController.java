@@ -56,7 +56,6 @@ public class AuthController {
     @GetMapping("/validate")
     public ResponseEntity<?> validateToken(@RequestHeader("Authorization") String token) {
         try {
-            // Token validation is handled by the security filter
             return ResponseEntity.ok(Map.of(
                     "success", true,
                     "message", "Token valide"

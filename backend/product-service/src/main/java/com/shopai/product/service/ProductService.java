@@ -19,8 +19,6 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
 
-    // ==================== CATEGORIES ====================
-
     public List<Category> getAllCategories() {
         return categoryRepository.findAll();
     }
@@ -55,8 +53,6 @@ public class ProductService {
         }
         categoryRepository.deleteById(Objects.requireNonNull(id, "Id ne doit pas être null"));
     }
-
-    // ==================== PRODUCTS ====================
 
     public List<Product> getAllProducts() {
         return productRepository.findAll();

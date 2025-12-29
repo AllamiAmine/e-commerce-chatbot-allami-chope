@@ -1,4 +1,3 @@
-// User roles enumeration
 export type UserRole = 'admin' | 'client' | 'seller';
 
 export interface User {
@@ -27,7 +26,6 @@ export interface RegisterData {
   phone?: string;
 }
 
-// Role permissions and capabilities
 export interface RolePermissions {
   canViewDashboard: boolean;
   canManageProducts: boolean;
@@ -68,7 +66,6 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
   },
 };
 
-// Role display info
 export const ROLE_INFO: Record<UserRole, { label: string; icon: string; color: string; description: string }> = {
   admin: {
     label: 'Administrateur',

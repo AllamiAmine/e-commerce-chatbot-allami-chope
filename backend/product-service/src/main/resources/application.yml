@@ -5,7 +5,6 @@ spring:
   application:
     name: product-service
   
-  # MySQL Database
   datasource:
     url: jdbc:mysql://localhost:3306/shopai_products?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
     username: root
@@ -24,7 +23,7 @@ spring:
   
   sql:
     init:
-      mode: never  # Disabled - data loaded via Python script
+      mode: never
 
 logging:
   level:

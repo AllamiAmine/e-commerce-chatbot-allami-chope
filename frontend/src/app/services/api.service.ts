@@ -35,10 +35,8 @@ export class ApiService {
     let errorMessage = 'Une erreur est survenue';
     
     if (error.error instanceof ErrorEvent) {
-      // Client-side error
       errorMessage = error.error.message;
     } else {
-      // Server-side error
       if (error.error?.message) {
         errorMessage = error.error.message;
       } else if (error.status === 0) {
@@ -58,7 +56,6 @@ export class ApiService {
     return throwError(() => new Error(errorMessage));
   }
 
-  // ==================== AUTH ====================
   
   login(email: string, password: string): Observable<ApiResponse<any>> {
     return this.http.post<ApiResponse<any>>(
@@ -83,7 +80,6 @@ export class ApiService {
     ).pipe(catchError(this.handleError.bind(this)));
   }
 
-  // ==================== USERS ====================
 
   getCurrentUser(): Observable<ApiResponse<any>> {
     return this.http.get<ApiResponse<any>>(
@@ -100,7 +96,6 @@ export class ApiService {
     ).pipe(catchError(this.handleError.bind(this)));
   }
 
-  // Admin endpoints
   getAllUsers(): Observable<ApiResponse<any>> {
     return this.http.get<ApiResponse<any>>(
       `${this.apiUrl}/users/admin/all`,
@@ -131,7 +126,6 @@ export class ApiService {
     ).pipe(catchError(this.handleError.bind(this)));
   }
 
-  // ==================== PRODUCTS ====================
 
   getProducts(): Observable<ApiResponse<any>> {
     return this.http.get<ApiResponse<any>>(
@@ -182,7 +176,6 @@ export class ApiService {
     ).pipe(catchError(this.handleError.bind(this)));
   }
 
-  // Admin product endpoints
   createProduct(productData: any): Observable<ApiResponse<any>> {
     return this.http.post<ApiResponse<any>>(
       `${this.apiUrl}/products`,
@@ -206,7 +199,6 @@ export class ApiService {
     ).pipe(catchError(this.handleError.bind(this)));
   }
 
-  // ==================== ORDERS ====================
 
   getOrders(): Observable<ApiResponse<any>> {
     return this.http.get<ApiResponse<any>>(
@@ -253,7 +245,6 @@ export class ApiService {
     ).pipe(catchError(this.handleError.bind(this)));
   }
 
-  // Admin order endpoints
   getAllOrdersAdmin(): Observable<ApiResponse<any>> {
     return this.http.get<ApiResponse<any>>(
       `${this.apiUrl}/orders`,
@@ -268,7 +259,6 @@ export class ApiService {
     ).pipe(catchError(this.handleError.bind(this)));
   }
 
-  // ==================== CHATBOT ====================
 
   sendChatMessage(message: string, userId?: number): Observable<ApiResponse<any>> {
     return this.http.post<ApiResponse<any>>(

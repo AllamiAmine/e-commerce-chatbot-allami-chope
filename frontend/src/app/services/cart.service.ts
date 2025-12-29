@@ -22,7 +22,6 @@ export class CartService {
     this.cartItemsSignal().reduce((sum, item) => sum + item.product.price * item.quantity, 0)
   );
 
-  // Get storage key based on user ID
   private getStorageKey(): string {
     const user = this.authService.user();
     if (user && user.id) {
@@ -31,7 +30,6 @@ export class CartService {
     return 'cart_guest'; // For non-logged-in users
   }
 
-  // Legacy getter for compatibility
   readonly items = computed(() => 
     this.cartItemsSignal().map(item => ({
       id: item.product.id,
@@ -44,11 +42,9 @@ export class CartService {
 
   addToCart(product: Product): void {
     this.cartItemsSignal.update(items => {
-      // Find existing item by product ID
       const existingIndex = items.findIndex(x => x.product.id === product.id);
       
       if (existingIndex !== -1) {
-        // Product already exists, increment quantity
         const updatedItems = [...items];
         updatedItems[existingIndex] = {
           ...updatedItems[existingIndex],
@@ -56,14 +52,12 @@ export class CartService {
         };
         return updatedItems;
       } else {
-        // New product, add to cart
         return [...items, { product, quantity: 1 }];
       }
     });
     this.saveToStorage();
   }
 
-  // Legacy method for compatibility
   addToCartLegacy(item: CartItem): void {
     this.cartItemsSignal.update(items => {
       const existing = items.find(x => x.product.id === item.id);
@@ -102,7 +96,6 @@ export class CartService {
     this.cartItemsSignal.update(items => {
       const itemIndex = items.findIndex(x => x.product.id === id);
       if (itemIndex === -1) {
-        // Item not found, return unchanged
         return items;
       }
       const updatedItems = [...items];
@@ -123,14 +116,12 @@ export class CartService {
   private saveTimeout: any = null;
 
   private saveToStorage(): void {
-    // Debounce saves to avoid too frequent localStorage writes
     if (this.saveTimeout) {
       clearTimeout(this.saveTimeout);
     }
     
     this.saveTimeout = setTimeout(() => {
       try {
-        // Clean up any duplicates before saving
         const items = this.cartItemsSignal();
         const cleanedItems: CartItemWithProduct[] = [];
         const seenIds = new Set<number>();
@@ -141,7 +132,6 @@ export class CartService {
               seenIds.add(item.product.id);
               cleanedItems.push(item);
             } else {
-              // Merge duplicate if found
               const existingIndex = cleanedItems.findIndex(x => x.product.id === item.product.id);
               if (existingIndex !== -1) {
                 cleanedItems[existingIndex].quantity += item.quantity;
@@ -150,7 +140,6 @@ export class CartService {
           }
         });
         
-        // Update signal if duplicates were found and removed
         if (cleanedItems.length !== items.length) {
           this.cartItemsSignal.set(cleanedItems);
         }
@@ -170,17 +159,14 @@ export class CartService {
       
       if (stored) {
         const parsed = JSON.parse(stored);
-        // Ensure we have valid cart items and merge duplicates
         if (Array.isArray(parsed)) {
           const mergedItems: CartItemWithProduct[] = [];
           parsed.forEach((item: any) => {
             if (item && item.product && item.product.id) {
               const existingIndex = mergedItems.findIndex(x => x.product.id === item.product.id);
               if (existingIndex !== -1) {
-                // Merge quantities if duplicate found
                 mergedItems[existingIndex].quantity += (item.quantity || 1);
               } else {
-                // Add new item
                 mergedItems.push({
                   product: item.product,
                   quantity: item.quantity || 1
@@ -191,7 +177,6 @@ export class CartService {
           this.cartItemsSignal.set(mergedItems);
         }
       } else {
-        // No cart found for this user, start with empty cart
         this.cartItemsSignal.set([]);
       }
     } catch (e) {
@@ -200,16 +185,13 @@ export class CartService {
     }
   }
 
-  // Switch cart when user changes
   private switchUserCart(): void {
     this.loadFromStorage();
   }
 
   constructor() {
-    // Load cart on initialization
     this.loadFromStorage();
     
-    // Watch for user changes and reload cart
     effect(() => {
       const user = this.authService.user();
       this.switchUserCart();

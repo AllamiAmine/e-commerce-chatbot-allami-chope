@@ -191,7 +191,6 @@ export class WishlistComponent {
   private cartService = inject(CartService);
   private productService = inject(ProductService);
 
-  // Simulated wishlist - in production, this would be a service
   private wishlistIds = signal<number[]>([1, 2, 5, 6]);
 
   wishlistItems = () => {

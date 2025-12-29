@@ -20,7 +20,6 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        // Create demo users if they don't exist
         createUserIfNotExists("admin@shopai.com", "admin123", "Admin ShopAI", User.Role.ADMIN, "+212 600 000 001");
         createUserIfNotExists("seller@shopai.com", "seller123", "Vendeur Demo", User.Role.SELLER, "+212 600 000 002");
         createUserIfNotExists("client@shopai.com", "client123", "Client Demo", User.Role.CLIENT, "+212 600 000 003");

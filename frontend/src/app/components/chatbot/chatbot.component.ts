@@ -317,7 +317,6 @@ export class ChatbotComponent implements AfterViewChecked {
   openChat(): void {
     this.isOpen = true;
     
-    // Check if there's a query from search bar
     const query = sessionStorage.getItem('chatbotQuery');
     if (query) {
       sessionStorage.removeItem('chatbotQuery');
@@ -346,7 +345,6 @@ export class ChatbotComponent implements AfterViewChecked {
   }
 
   sendQuickAction(action: string): void {
-    // Map quick actions to natural language
     const actionMap: Record<string, string> = {
       '🤖 Recommandations IA': 'Donne-moi des recommandations personnalisées avec l\'IA',
       '🔥 Produits populaires': 'Montre-moi les produits populaires',
@@ -373,14 +371,11 @@ export class ChatbotComponent implements AfterViewChecked {
     this.input = '';
     this.isLoading = true;
 
-    // Simulate NLP processing with realistic delay
     const processingTime = 800 + Math.random() * 700;
     
     setTimeout(async () => {
-      // Use the intelligent chatbot service
       const nlpResult = this.chatbotService.analyzeMessage(userInput);
       
-      // Check if this is a recommendation request - use AI recommendations
       if (nlpResult.intent === 'recommendation') {
         try {
           const aiResponse = await this.chatbotService.getAIRecommendations(4);
@@ -400,7 +395,6 @@ export class ChatbotComponent implements AfterViewChecked {
         }
       }
       
-      // Check if user is asking about similar products
       const similarMatch = userInput.match(/similaire[s]?\s+(?:à|au|a)?\s*(?:produit)?\s*#?(\d+)/i) ||
                           userInput.match(/produit[s]?\s+similaire[s]?\s+(?:à|au|a)?\s*#?(\d+)/i);
       if (similarMatch) {
@@ -423,7 +417,6 @@ export class ChatbotComponent implements AfterViewChecked {
         }
       }
       
-      // Default NLP response
       const response = this.chatbotService.generateResponse(nlpResult);
       
       const botMessage: Message = {
@@ -444,7 +437,6 @@ export class ChatbotComponent implements AfterViewChecked {
   addToCart(product: Product): void {
     this.cartService.addToCart(product);
     
-    // Show confirmation in chat
     const confirmMessage: Message = {
       id: Date.now().toString(),
       type: 'bot',

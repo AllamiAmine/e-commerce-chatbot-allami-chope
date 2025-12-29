@@ -187,7 +187,6 @@ export class AdminComponent implements OnInit {
   ];
 
   constructor() {
-    // Check if user is admin
     if (!this.authService.isAdmin()) {
       this.router.navigate(['/']);
     }
@@ -201,19 +200,16 @@ export class AdminComponent implements OnInit {
     this.isLoading.set(true);
     
     try {
-      // Load users stats
       const usersResponse = await firstValueFrom(this.apiService.getAllUsers());
       const usersCount = usersResponse.success && usersResponse.data ? usersResponse.data.length : 0;
       const activeUsers = usersResponse.success && usersResponse.data 
         ? usersResponse.data.filter((u: any) => u.status === 'ACTIVE' || u.status === 'active').length 
         : 0;
 
-      // Load products stats
       const products = this.productService.getProducts();
       const productsCount = products.length;
       const inStockProducts = products.filter(p => (p.stock || 0) > 0).length;
 
-      // Load orders stats (try to get from API)
       let ordersCount = 0;
       let revenue = 0;
       try {
@@ -228,7 +224,6 @@ export class AdminComponent implements OnInit {
         console.warn('Could not load orders:', error);
       }
 
-      // Calculate trends (simplified - could be improved with historical data)
       const previousUsers = 0; // Would come from historical data
       const previousOrders = 0;
       const previousProducts = 0;
