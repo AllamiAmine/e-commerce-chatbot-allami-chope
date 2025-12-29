@@ -108,6 +108,29 @@ export class ApiService {
     ).pipe(catchError(this.handleError.bind(this)));
   }
 
+  createUser(userData: { name: string; email: string; phone?: string; role: string; status: string; password?: string }): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(
+      `${this.apiUrl}/users/admin/create`,
+      userData,
+      { headers: this.getHeaders() }
+    ).pipe(catchError(this.handleError.bind(this)));
+  }
+
+  updateUser(id: number, userData: any): Observable<ApiResponse<any>> {
+    return this.http.put<ApiResponse<any>>(
+      `${this.apiUrl}/users/admin/${id}`,
+      userData,
+      { headers: this.getHeaders() }
+    ).pipe(catchError(this.handleError.bind(this)));
+  }
+
+  deleteUser(id: number): Observable<ApiResponse<any>> {
+    return this.http.delete<ApiResponse<any>>(
+      `${this.apiUrl}/users/admin/${id}`,
+      { headers: this.getHeaders() }
+    ).pipe(catchError(this.handleError.bind(this)));
+  }
+
   // ==================== PRODUCTS ====================
 
   getProducts(): Observable<ApiResponse<any>> {
@@ -159,6 +182,30 @@ export class ApiService {
     ).pipe(catchError(this.handleError.bind(this)));
   }
 
+  // Admin product endpoints
+  createProduct(productData: any): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(
+      `${this.apiUrl}/products`,
+      productData,
+      { headers: this.getHeaders() }
+    ).pipe(catchError(this.handleError.bind(this)));
+  }
+
+  updateProduct(id: number, productData: any): Observable<ApiResponse<any>> {
+    return this.http.put<ApiResponse<any>>(
+      `${this.apiUrl}/products/${id}`,
+      productData,
+      { headers: this.getHeaders() }
+    ).pipe(catchError(this.handleError.bind(this)));
+  }
+
+  deleteProduct(id: number): Observable<ApiResponse<any>> {
+    return this.http.delete<ApiResponse<any>>(
+      `${this.apiUrl}/products/${id}`,
+      { headers: this.getHeaders() }
+    ).pipe(catchError(this.handleError.bind(this)));
+  }
+
   // ==================== ORDERS ====================
 
   getOrders(): Observable<ApiResponse<any>> {
@@ -202,6 +249,21 @@ export class ApiService {
     return this.http.put<ApiResponse<any>>(
       `${this.apiUrl}/orders/${orderId}/cancel`,
       {},
+      { headers: this.getHeaders() }
+    ).pipe(catchError(this.handleError.bind(this)));
+  }
+
+  // Admin order endpoints
+  getAllOrdersAdmin(): Observable<ApiResponse<any>> {
+    return this.http.get<ApiResponse<any>>(
+      `${this.apiUrl}/orders`,
+      { headers: this.getHeaders() }
+    ).pipe(catchError(this.handleError.bind(this)));
+  }
+
+  getOrderByIdAdmin(id: number): Observable<ApiResponse<any>> {
+    return this.http.get<ApiResponse<any>>(
+      `${this.apiUrl}/orders/${id}`,
       { headers: this.getHeaders() }
     ).pipe(catchError(this.handleError.bind(this)));
   }

@@ -24,7 +24,7 @@ import { AuthService } from '../../services/auth.service';
             <h1 class="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-2">
               Créer un compte
             </h1>
-            <p class="text-muted-foreground">Rejoignez allami chope aujourd'hui</p>
+            <p class="text-muted-foreground">Rejoignez ALLAMI SHOP aujourd'hui</p>
           </div>
 
           <!-- Google Button -->

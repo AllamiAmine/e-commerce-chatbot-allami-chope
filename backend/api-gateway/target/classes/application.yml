@@ -55,6 +55,17 @@ spring:
           uri: http://localhost:8084
           predicates:
             - Path=/api/chatbot/**
+        
+        # AI Recommendation Service Routes
+        - id: recommendation-service
+          uri: http://localhost:8085
+          predicates:
+            - Path=/api/recommendations/**
+        
+        - id: recommendation-health
+          uri: http://localhost:8085
+          predicates:
+            - Path=/recommendations/health
 
 management:
   endpoints:

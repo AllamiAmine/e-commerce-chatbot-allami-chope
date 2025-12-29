@@ -6,12 +6,12 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <section id="about" class="bg-background py-16 md:py-24 border-t border-border">
+    <section id="about" class="bg-background py-16 md:py-24 border-t border-border scroll-mt-20">
       <div class="container mx-auto px-4 md:px-6">
         <div class="max-w-4xl mx-auto text-center mb-12">
           <h2 class="text-3xl md:text-4xl font-bold mb-4">À Propos de Nous</h2>
           <p class="text-muted-foreground leading-relaxed">
-            Chez <span class="font-semibold text-primary">allami chope</span>, nous sommes passionnés par les
+            Chez <span class="font-semibold text-primary">ALLAMI SHOP</span>, nous sommes passionnés par les
             dernières technologies mobiles. Notre mission est de vous offrir une expérience d'achat fluide,
             une sélection premium d'appareils et un service client attentif.
           </p>
@@ -35,14 +35,14 @@ import { CommonModule } from '@angular/common';
             <h3 class="text-xl font-semibold mt-6">Nos Valeurs</h3>
             <p class="text-muted-foreground">
               La satisfaction client, l'innovation, l'intégrité et l'excellence guident chacune de nos décisions
-              et chaque détail de l'expérience <span class="font-semibold">allami chope</span>.
+              et chaque détail de l'expérience <span class="font-semibold">ALLAMI SHOP</span>.
             </p>
           </div>
 
           <div class="space-y-4 text-sm md:text-base">
             <h3 class="text-xl font-semibold">Notre Histoire</h3>
             <p class="text-muted-foreground">
-              Fondé en 2020, <span class="font-semibold">allami chope</span> est né d'une idée simple :
+              Fondé en 2020, <span class="font-semibold">ALLAMI SHOP</span> est né d'une idée simple :
               rendre la technologie mobile de pointe accessible à tous. Partie d'un simple projet académique,
               la plateforme est devenue un démonstrateur complet d'e‑commerce moderne, centré sur l'utilisateur.
             </p>

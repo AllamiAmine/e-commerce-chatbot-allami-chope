@@ -1,5 +1,0 @@
-com\shopai\chatbot\config\CorsConfig.class
-com\shopai\chatbot\controller\ChatbotController.class
-com\shopai\chatbot\service\NLPService.class
-com\shopai\chatbot\ChatbotServiceApplication.class
-com\shopai\chatbot\service\ChatbotService.class

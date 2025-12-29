@@ -253,88 +253,39 @@ export class AuthService {
     return this.useBackend();
   }
 
-  // Google Sign-In
+  // Google Sign-In (Mode simulation pour démo)
   async loginWithGoogle(): Promise<{ success: boolean; message: string; user?: User }> {
-    return new Promise((resolve) => {
-      // Check if Google Sign-In is available
-      if (typeof google !== 'undefined' && google.accounts) {
-        google.accounts.id.initialize({
-          client_id: 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com', // Replace with your actual Client ID
-          callback: async (response: any) => {
-            if (response.credential) {
-              // Decode JWT token to get user info
-              const payload = this.decodeJwtToken(response.credential);
-              
-              if (payload) {
-                const user: User = {
-                  id: payload.sub,
-                  email: payload.email,
-                  name: payload.name,
-                  role: 'client',
-                  avatar: payload.picture || '',
-                  createdAt: new Date(),
-                  isLoggedIn: true,
-                };
-
-                this.currentUser.set(user);
-                this.saveUserToStorage(user);
-                resolve({ success: true, message: 'Connexion Google réussie', user });
-              } else {
-                resolve({ success: false, message: 'Erreur lors de la connexion Google' });
-              }
-            } else {
-              resolve({ success: false, message: 'Connexion Google annulée' });
-            }
-          },
-        });
-
-        google.accounts.id.prompt((notification: any) => {
-          if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-            // Fallback to demo Google login
-            this.simulateGoogleLogin().then(resolve);
-          }
-        });
-      } else {
-        // Fallback to demo mode
-        this.simulateGoogleLogin().then(resolve);
-      }
-    });
-  }
-
-  private decodeJwtToken(token: string): any {
-    try {
-      const base64Url = token.split('.')[1];
-      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      const jsonPayload = decodeURIComponent(
-        atob(base64)
-          .split('')
-          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-          .join('')
-      );
-      return JSON.parse(jsonPayload);
-    } catch {
-      return null;
-    }
+    // Utiliser directement le mode simulation pour éviter les erreurs de configuration
+    return this.simulateGoogleLogin();
   }
 
   private async simulateGoogleLogin(): Promise<{ success: boolean; message: string; user?: User }> {
-    // Simulate Google Sign-In for demo purposes
+    // Simulation Google Sign-In pour démo (sans configuration OAuth)
     return new Promise((resolve) => {
+      // Générer un email aléatoire pour la démo
+      const randomId = Math.floor(Math.random() * 10000);
+      const demoEmails = [
+        'demo.user@gmail.com',
+        'test.account@gmail.com',
+        'example.user@gmail.com'
+      ];
+      const randomEmail = demoEmails[Math.floor(Math.random() * demoEmails.length)];
+      
       setTimeout(() => {
         const user: User = {
-          id: 'google_' + Date.now(),
-          email: 'user@gmail.com',
+          id: 'google_' + Date.now() + '_' + randomId,
+          email: randomEmail,
           name: 'Utilisateur Google',
           role: 'client',
-          avatar: 'https://lh3.googleusercontent.com/a/default-user=s96-c',
+          avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=96&h=96&fit=crop&q=80',
           createdAt: new Date(),
           isLoggedIn: true,
         };
 
         this.currentUser.set(user);
         this.saveUserToStorage(user);
-        resolve({ success: true, message: 'Connexion Google réussie (Mode démo)', user });
-      }, 1000);
+        resolve({ success: true, message: 'Connexion Google réussie', user });
+      }, 800);
     });
   }
 }

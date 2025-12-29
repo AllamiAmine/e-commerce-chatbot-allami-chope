@@ -20,7 +20,7 @@ import { RouterLink } from '@angular/router';
           <div class="flex-1 bg-gradient-to-br from-slate-900/80 to-slate-800/60 border border-white/5 rounded-3xl p-6 md:p-8 shadow-2xl">
             <div class="flex items-center justify-between mb-6">
               <div>
-                <p class="text-xs uppercase tracking-[0.3em] text-primary/80 mb-1">ALLAMI CHOPE</p>
+                <p class="text-xs uppercase tracking-[0.3em] text-primary/80 mb-1">ALLAMI SHOP</p>
                 <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight">
                   Premium Mobile Store
                 </h1>
@@ -94,17 +94,21 @@ import { RouterLink } from '@angular/router';
                 </div>
               </div>
 
-              <!-- Simple visual placeholder for phone -->
+              <!-- iPhone Image -->
               <div class="relative h-64 md:h-72 lg:h-80">
-                <div class="absolute inset-6 rounded-[2.5rem] bg-gradient-to-br from-slate-50 via-slate-200 to-slate-400 shadow-[0_25px_80px_rgba(0,0,0,0.7)]">
-                  <div class="absolute inset-1 rounded-[2.2rem] bg-slate-900 flex items-center justify-center">
-                    <div class="w-24 h-24 rounded-full bg-gradient-to-br from-amber-400 to-rose-500 blur-2xl opacity-70"></div>
-                  </div>
+                <div class="absolute inset-6 rounded-[2.5rem] bg-gradient-to-br from-slate-50 via-slate-200 to-slate-400 shadow-[0_25px_80px_rgba(0,0,0,0.7)] overflow-hidden">
+                  <img 
+                    src="https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800&h=800&fit=crop&q=80" 
+                    alt="iPhone 17 Pro Max"
+                    class="w-full h-full object-cover rounded-[2.2rem]"
+                    loading="eager"
+                    (error)="onImageError($event)"
+                  />
                 </div>
-                <div class="absolute left-4 top-4 bg-black/60 text-[10px] px-2 py-1 rounded-full border border-white/10">
+                <div class="absolute left-4 top-4 bg-black/60 text-[10px] px-2 py-1 rounded-full border border-white/10 backdrop-blur-sm">
                   iPhone 17 Pro Max
                 </div>
-                <div class="absolute right-4 bottom-4 bg-black/70 text-[10px] px-2 py-1 rounded-full border border-white/10">
+                <div class="absolute right-4 bottom-4 bg-black/70 text-[10px] px-2 py-1 rounded-full border border-white/10 backdrop-blur-sm">
                   Livraison gratuite 24/48h
                 </div>
               </div>
@@ -180,8 +184,14 @@ import { RouterLink } from '@angular/router';
             </div>
           </div>
           <div class="rounded-3xl border border-border bg-card p-5 shadow-sm">
-            <div class="aspect-[16/10] rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 mb-4 flex items-center justify-center">
-              <span class="text-xs text-slate-200">Visuel MacBook Pro 16" M3 Max</span>
+            <div class="aspect-[16/10] rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 mb-4 overflow-hidden">
+              <img 
+                src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800&h=500&fit=crop&q=80" 
+                alt="MacBook Pro 16-inch M3 Max"
+                class="w-full h-full object-cover"
+                loading="lazy"
+                (error)="onImageError($event)"
+              />
             </div>
             <p class="text-sm text-muted-foreground">
               Puissance maximale, autonomie exceptionnelle et écran XDR pour les workflows professionnels les plus lourds.
@@ -192,4 +202,10 @@ import { RouterLink } from '@angular/router';
     </section>
   `
 })
-export class HeroComponent {}
+export class HeroComponent {
+  onImageError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    // Fallback to a generic product placeholder
+    img.src = 'https://images.unsplash.com/photo-1560393464-5c69a73c5770?w=800&h=800&fit=crop&q=80';
+  }
+}

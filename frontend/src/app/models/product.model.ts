@@ -8,6 +8,7 @@ export interface Product {
   badge?: string | null;
   categoryId?: number;
   description?: string;
+  stock?: number;
 }
 
 export interface CartItem {

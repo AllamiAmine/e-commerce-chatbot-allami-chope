@@ -183,6 +183,49 @@ public class UserController {
         }
     }
 
+    @PostMapping("/admin/create")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> createUser(@RequestBody Map<String, Object> userData) {
+        try {
+            String name = (String) userData.get("name");
+            String email = (String) userData.get("email");
+            String phone = (String) userData.getOrDefault("phone", "");
+            String roleStr = (String) userData.getOrDefault("role", "CLIENT");
+            String statusStr = (String) userData.getOrDefault("status", "ACTIVE");
+            String password = (String) userData.getOrDefault("password", null);
+
+            User.Role role;
+            try {
+                role = User.Role.valueOf(roleStr.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                return ResponseEntity.badRequest().body(Map.of(
+                        "success", false,
+                        "message", "Rôle invalide: " + roleStr
+                ));
+            }
+
+            User.Status status;
+            try {
+                status = User.Status.valueOf(statusStr.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                status = User.Status.ACTIVE;
+            }
+
+            User user = userService.createUser(name, email, phone, role, status, password);
+            
+            return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "message", "Utilisateur créé avec succès",
+                    "data", mapUserToResponse(user)
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "success", false,
+                    "message", e.getMessage()
+            ));
+        }
+    }
+
     @GetMapping("/admin/stats")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> getAdminStats() {

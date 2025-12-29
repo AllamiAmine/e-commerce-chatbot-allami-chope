@@ -65,10 +65,15 @@ import { ProductService } from '../../services/product.service';
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
               </svg>
             </button>
-            <button (click)="isOpen = false" class="p-2 hover:bg-white/10 rounded-lg transition-colors">
-              <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <button 
+              (click)="closeChat()" 
+              class="px-3 py-1.5 flex items-center gap-1.5 hover:bg-white/10 rounded-lg transition-colors text-white text-sm font-medium"
+              title="Fermer le chatbot"
+            >
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
               </svg>
+              <span class="hidden sm:inline">Fermer</span>
             </button>
           </div>
         </div>
@@ -216,15 +221,27 @@ import { ProductService } from '../../services/product.service';
               </svg>
             </button>
           </div>
-          <div class="flex items-center justify-center gap-2 mt-2">
-            <div class="flex items-center gap-1">
-              <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-              <span class="text-xs text-muted-foreground">IA Active</span>
+          <div class="flex items-center justify-between mt-3">
+            <div class="flex items-center justify-center gap-2">
+              <div class="flex items-center gap-1">
+                <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                <span class="text-xs text-muted-foreground">IA Active</span>
+              </div>
+              <span class="text-xs text-muted-foreground">•</span>
+              <span class="text-xs text-muted-foreground">NLP Intelligent</span>
+              <span class="text-xs text-muted-foreground">•</span>
+              <span class="text-xs text-muted-foreground">24/7</span>
             </div>
-            <span class="text-xs text-muted-foreground">•</span>
-            <span class="text-xs text-muted-foreground">NLP Intelligent</span>
-            <span class="text-xs text-muted-foreground">•</span>
-            <span class="text-xs text-muted-foreground">24/7</span>
+            <button
+              (click)="closeChat()"
+              class="px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors flex items-center gap-1.5"
+              title="Fermer le chatbot"
+            >
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+              <span>Fermer</span>
+            </button>
           </div>
         </div>
       </div>
@@ -262,10 +279,10 @@ export class ChatbotComponent implements AfterViewChecked {
   categories: Category[] = [];
   
   quickActions = [
-    '💡 Recommandations',
+    '🤖 Recommandations IA',
+    '🔥 Produits populaires',
     '🔍 Chercher un produit',
-    '📦 Suivre ma commande',
-    '❓ Comment ça marche ?'
+    '📦 Suivre ma commande'
   ];
 
   messages: Message[] = [];
@@ -274,12 +291,12 @@ export class ChatbotComponent implements AfterViewChecked {
     id: '1',
     type: 'bot',
     content: `Bonjour ! 👋 Je suis l'<strong>Assistant IA ShopAI</strong>, votre conseiller shopping intelligent.<br><br>
-🧠 Grâce au <strong>traitement du langage naturel (NLP)</strong>, je comprends vos demandes et peux :<br>
-• 🔍 Rechercher des produits par catégorie<br>
-• 💡 Vous recommander les meilleurs articles<br>
-• 📦 Suivre vos commandes<br>
-• 🛒 Vous aider à acheter<br><br>
-<strong>Essayez :</strong> "<em>Montre-moi des écouteurs</em>" ou cliquez sur une catégorie !`,
+🤖 Grâce à notre <strong>Intelligence Artificielle avancée</strong>, je peux :<br>
+• 🎯 <strong>Recommandations personnalisées</strong> basées sur vos préférences<br>
+• 🔗 Trouver des <strong>produits similaires</strong> à ceux que vous aimez<br>
+• 🔥 Vous montrer les <strong>produits populaires</strong><br>
+• 🔍 Rechercher par catégorie ou mot-clé<br><br>
+<strong>Essayez :</strong> "<em>Donne-moi des recommandations IA</em>" ou cliquez sur un bouton ci-dessous !`,
     timestamp: new Date(),
   };
 
@@ -299,6 +316,20 @@ export class ChatbotComponent implements AfterViewChecked {
 
   openChat(): void {
     this.isOpen = true;
+    
+    // Check if there's a query from search bar
+    const query = sessionStorage.getItem('chatbotQuery');
+    if (query) {
+      sessionStorage.removeItem('chatbotQuery');
+      setTimeout(() => {
+        this.input = query;
+        this.handleSend();
+      }, 300);
+    }
+  }
+
+  closeChat(): void {
+    this.isOpen = false;
   }
 
   clearChat(): void {
@@ -317,7 +348,8 @@ export class ChatbotComponent implements AfterViewChecked {
   sendQuickAction(action: string): void {
     // Map quick actions to natural language
     const actionMap: Record<string, string> = {
-      '💡 Recommandations': 'Quels produits me recommandes-tu ?',
+      '🤖 Recommandations IA': 'Donne-moi des recommandations personnalisées avec l\'IA',
+      '🔥 Produits populaires': 'Montre-moi les produits populaires',
       '🔍 Chercher un produit': 'Je voudrais chercher un produit',
       '📦 Suivre ma commande': 'Où en est ma commande ?',
       '❓ Comment ça marche ?': 'Comment puis-tu m\'aider ?'
@@ -344,9 +376,54 @@ export class ChatbotComponent implements AfterViewChecked {
     // Simulate NLP processing with realistic delay
     const processingTime = 800 + Math.random() * 700;
     
-    setTimeout(() => {
+    setTimeout(async () => {
       // Use the intelligent chatbot service
       const nlpResult = this.chatbotService.analyzeMessage(userInput);
+      
+      // Check if this is a recommendation request - use AI recommendations
+      if (nlpResult.intent === 'recommendation') {
+        try {
+          const aiResponse = await this.chatbotService.getAIRecommendations(4);
+          const botMessage: Message = {
+            id: (Date.now() + 1).toString(),
+            type: 'bot',
+            content: aiResponse.text,
+            timestamp: new Date(),
+            products: aiResponse.products,
+            intent: 'recommendation'
+          };
+          this.messages = [...this.messages, botMessage];
+          this.isLoading = false;
+          return;
+        } catch (error) {
+          console.warn('AI recommendations failed, using fallback:', error);
+        }
+      }
+      
+      // Check if user is asking about similar products
+      const similarMatch = userInput.match(/similaire[s]?\s+(?:à|au|a)?\s*(?:produit)?\s*#?(\d+)/i) ||
+                          userInput.match(/produit[s]?\s+similaire[s]?\s+(?:à|au|a)?\s*#?(\d+)/i);
+      if (similarMatch) {
+        try {
+          const productId = parseInt(similarMatch[1]);
+          const aiResponse = await this.chatbotService.getAISimilarProducts(productId, 4);
+          const botMessage: Message = {
+            id: (Date.now() + 1).toString(),
+            type: 'bot',
+            content: aiResponse.text,
+            timestamp: new Date(),
+            products: aiResponse.products,
+            intent: 'recommendation'
+          };
+          this.messages = [...this.messages, botMessage];
+          this.isLoading = false;
+          return;
+        } catch (error) {
+          console.warn('Similar products failed:', error);
+        }
+      }
+      
+      // Default NLP response
       const response = this.chatbotService.generateResponse(nlpResult);
       
       const botMessage: Message = {

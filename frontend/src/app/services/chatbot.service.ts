@@ -3,6 +3,7 @@ import { Product, Category, NLPResult, ChatIntent } from '../models/product.mode
 import { ProductService } from './product.service';
 import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
+import { RecommendationService } from './recommendation.service';
 import { firstValueFrom } from 'rxjs';
 
 @Injectable({
@@ -12,8 +13,10 @@ export class ChatbotService {
   private productService = inject(ProductService);
   private apiService = inject(ApiService);
   private authService = inject(AuthService);
+  private recommendationService = inject(RecommendationService);
   
   private useBackend = true;
+  private useAIRecommendations = true; // Enable AI-powered recommendations
 
   /**
    * Envoie un message au chatbot (backend ou local)
@@ -104,9 +107,9 @@ export class ChatbotService {
     
     const intentPatterns: { intent: ChatIntent; patterns: string[]; weight: number }[] = [
       { intent: 'greeting', patterns: ['bonjour', 'salut', 'hello', 'hey', 'coucou', 'bonsoir', 'hi', 'salam'], weight: 1.5 },
-      { intent: 'product_search', patterns: ['cherche', 'recherche', 'trouve', 'trouver', 'où', 'avoir', 'acheter', 'besoin', 'veux', 'voudrais', 'montre', 'écouteur', 'caméra'], weight: 1.2 },
+      { intent: 'product_search', patterns: ['cherche', 'recherche', 'trouve', 'trouver', 'où', 'avoir', 'besoin', 'montre-moi', 'écouteur', 'caméra'], weight: 1.2 },
       { intent: 'category_browse', patterns: ['catégorie', 'categories', 'électronique', 'accessoires', 'maison', 'mode', 'sports', 'beauté'], weight: 1.3 },
-      { intent: 'recommendation', patterns: ['recommand', 'suggér', 'conseil', 'proposer', 'idée', 'meilleur', 'populaire', 'tendance'], weight: 1.4 },
+      { intent: 'recommendation', patterns: ['recommand', 'suggér', 'conseil', 'proposer', 'idée', 'meilleur', 'populaire', 'tendance', 'ia', 'intelligence', 'personnalisé', 'pour moi', 'similaire'], weight: 1.6 },
       { intent: 'order_status', patterns: ['commande', 'commandes', 'mes commandes', 'historique', 'statut'], weight: 1.3 },
       { intent: 'delivery_tracking', patterns: ['livraison', 'suivre', 'suivi', 'tracking', 'colis', 'expédition'], weight: 1.3 },
       { intent: 'price_inquiry', patterns: ['prix', 'coût', 'combien', 'tarif', 'promotion', 'solde', 'réduction'], weight: 1.2 },
@@ -249,12 +252,119 @@ export class ChatbotService {
   }
 
   private handleRecommendation(entities: NLPResult['entities']): { text: string; products?: Product[]; suggestions?: string[] } {
+    // Use local products as fallback
     const products = this.productService.getTopRatedProducts(4);
     return {
-      text: `💡 <strong>Recommandations</strong><br><br>Voici nos produits les mieux notés :`,
+      text: `💡 <strong>Recommandations IA</strong><br><br>🤖 L'intelligence artificielle analyse vos préférences...<br>Voici les produits sélectionnés pour vous :`,
       products,
-      suggestions: ['Voir plus', 'Promotions']
+      suggestions: ['Plus de recommandations', 'Produits similaires', 'Produits populaires']
     };
+  }
+
+  /**
+   * Get AI-powered recommendations asynchronously
+   * Called separately after the initial response
+   */
+  async getAIRecommendations(limit: number = 4): Promise<{ text: string; products: Product[]; strategy: string }> {
+    try {
+      const user = this.authService.user();
+      
+      if (user && this.useAIRecommendations) {
+        // Get personalized recommendations for logged-in user
+        const response = await firstValueFrom(
+          this.recommendationService.getRecommendationsForUser(user.id, limit)
+        );
+        
+        if (response.recommendations && response.recommendations.length > 0) {
+          const productIds = response.recommendations.map(r => parseInt(r.product_id));
+          const products = this.getProductsByIds(productIds);
+          
+          return {
+            text: `🤖 <strong>Recommandations personnalisées IA</strong><br><br>
+Basées sur votre profil et vos préférences, notre IA vous suggère :`,
+            products,
+            strategy: response.strategy_used
+          };
+        }
+      }
+      
+      // Fallback to popular products for non-logged users
+      const popularResponse = await firstValueFrom(
+        this.recommendationService.getPopularProducts(limit)
+      );
+      
+      if (popularResponse.products && popularResponse.products.length > 0) {
+        const productIds = popularResponse.products.map(r => parseInt(r.product_id));
+        const products = this.getProductsByIds(productIds);
+        
+        return {
+          text: `🔥 <strong>Produits populaires</strong><br><br>
+Les produits les plus appréciés par nos clients :`,
+          products,
+          strategy: 'popularity'
+        };
+      }
+      
+      // Ultimate fallback
+      return {
+        text: `💡 <strong>Nos meilleures ventes</strong>`,
+        products: this.productService.getTopRatedProducts(limit),
+        strategy: 'fallback'
+      };
+      
+    } catch (error) {
+      console.error('AI Recommendations error:', error);
+      return {
+        text: `💡 <strong>Produits recommandés</strong>`,
+        products: this.productService.getTopRatedProducts(limit),
+        strategy: 'fallback'
+      };
+    }
+  }
+
+  /**
+   * Get similar products using AI
+   */
+  async getAISimilarProducts(productId: number, limit: number = 4): Promise<{ text: string; products: Product[] }> {
+    try {
+      const response = await firstValueFrom(
+        this.recommendationService.getSimilarProducts(productId, limit)
+      );
+      
+      if (response.similar_products && response.similar_products.length > 0) {
+        const productIds = response.similar_products.map(r => parseInt(r.product_id));
+        const products = this.getProductsByIds(productIds);
+        const originalProduct = this.productService.getProductById(productId);
+        
+        return {
+          text: `🔗 <strong>Produits similaires à "${originalProduct?.name || 'ce produit'}"</strong><br><br>
+Notre IA a trouvé ces produits qui pourraient vous intéresser :`,
+          products
+        };
+      }
+      
+      return {
+        text: `🔗 <strong>Produits similaires</strong>`,
+        products: this.productService.getTopRatedProducts(limit)
+      };
+      
+    } catch (error) {
+      console.error('Similar products error:', error);
+      return {
+        text: `🔗 <strong>Autres produits</strong>`,
+        products: this.productService.getTopRatedProducts(limit)
+      };
+    }
+  }
+
+  /**
+   * Get products by their IDs
+   */
+  private getProductsByIds(ids: number[]): Product[] {
+    const allProducts = this.productService.getProducts();
+    return ids
+      .map(id => allProducts.find(p => p.id === id))
+      .filter((p): p is Product => p !== undefined);
   }
 
   private handleOrderStatus(): { text: string; suggestions?: string[] } {

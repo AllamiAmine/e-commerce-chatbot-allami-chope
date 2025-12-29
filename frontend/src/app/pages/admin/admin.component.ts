@@ -1,8 +1,11 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { ApiService } from '../../services/api.service';
+import { ProductService } from '../../services/product.service';
 import { ROLE_INFO } from '../../models/user.model';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-admin',
@@ -42,17 +45,23 @@ import { ROLE_INFO } from '../../models/user.model';
       <div class="container mx-auto px-4 py-8">
         <!-- Stats Cards -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          @for (stat of stats; track stat.label) {
+          @for (stat of stats(); track stat.label) {
             <div class="bg-background rounded-2xl border border-border p-6 hover:shadow-lg transition-shadow">
               <div class="flex items-center justify-between mb-4">
                 <div [class]="'w-12 h-12 rounded-xl bg-gradient-to-br flex items-center justify-center text-white text-xl ' + stat.color">
                   {{ stat.icon }}
                 </div>
-                <span [class]="'text-xs px-2 py-1 rounded-full ' + (stat.trend > 0 ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600')">
-                  {{ stat.trend > 0 ? '+' : '' }}{{ stat.trend }}%
-                </span>
+                @if (stat.trend !== 0) {
+                  <span [class]="'text-xs px-2 py-1 rounded-full ' + (stat.trend > 0 ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600')">
+                    {{ stat.trend > 0 ? '+' : '' }}{{ stat.trend }}%
+                  </span>
+                }
               </div>
-              <h3 class="text-2xl font-bold text-foreground">{{ stat.value }}</h3>
+              @if (isLoading()) {
+                <div class="h-8 w-24 bg-muted animate-pulse rounded mb-2"></div>
+              } @else {
+                <h3 class="text-2xl font-bold text-foreground">{{ stat.value }}</h3>
+              }
               <p class="text-sm text-muted-foreground">{{ stat.label }}</p>
             </div>
           }
@@ -109,16 +118,20 @@ import { ROLE_INFO } from '../../models/user.model';
     </div>
   `
 })
-export class AdminComponent {
+export class AdminComponent implements OnInit {
   authService = inject(AuthService);
   private router = inject(Router);
+  private apiService = inject(ApiService);
+  private productService = inject(ProductService);
 
-  stats = [
-    { label: 'Utilisateurs', value: '1,234', icon: '👥', color: 'from-blue-500 to-blue-600', trend: 12 },
-    { label: 'Commandes', value: '856', icon: '📦', color: 'from-green-500 to-green-600', trend: 8 },
-    { label: 'Produits', value: '432', icon: '🛍️', color: 'from-purple-500 to-purple-600', trend: -3 },
-    { label: 'Revenus', value: '45,678 MAD', icon: '💰', color: 'from-orange-500 to-orange-600', trend: 15 },
-  ];
+  isLoading = signal(false);
+  
+  stats = signal([
+    { label: 'Utilisateurs', value: '0', icon: '👥', color: 'from-blue-500 to-blue-600', trend: 0 },
+    { label: 'Commandes', value: '0', icon: '📦', color: 'from-green-500 to-green-600', trend: 0 },
+    { label: 'Produits', value: '0', icon: '🛍️', color: 'from-purple-500 to-purple-600', trend: 0 },
+    { label: 'Revenus', value: '0 MAD', icon: '💰', color: 'from-orange-500 to-orange-600', trend: 0 },
+  ]);
 
   quickActions = [
     { 
@@ -177,6 +190,89 @@ export class AdminComponent {
     // Check if user is admin
     if (!this.authService.isAdmin()) {
       this.router.navigate(['/']);
+    }
+  }
+
+  ngOnInit(): void {
+    this.loadStats();
+  }
+
+  async loadStats(): Promise<void> {
+    this.isLoading.set(true);
+    
+    try {
+      // Load users stats
+      const usersResponse = await firstValueFrom(this.apiService.getAllUsers());
+      const usersCount = usersResponse.success && usersResponse.data ? usersResponse.data.length : 0;
+      const activeUsers = usersResponse.success && usersResponse.data 
+        ? usersResponse.data.filter((u: any) => u.status === 'ACTIVE' || u.status === 'active').length 
+        : 0;
+
+      // Load products stats
+      const products = this.productService.getProducts();
+      const productsCount = products.length;
+      const inStockProducts = products.filter(p => (p.stock || 0) > 0).length;
+
+      // Load orders stats (try to get from API)
+      let ordersCount = 0;
+      let revenue = 0;
+      try {
+        const ordersResponse = await firstValueFrom(this.apiService.getOrders());
+        if (ordersResponse.success && ordersResponse.data) {
+          ordersCount = ordersResponse.data.length;
+          revenue = ordersResponse.data.reduce((sum: number, order: any) => {
+            return sum + (order.total || order.totalAmount || 0);
+          }, 0);
+        }
+      } catch (error) {
+        console.warn('Could not load orders:', error);
+      }
+
+      // Calculate trends (simplified - could be improved with historical data)
+      const previousUsers = 0; // Would come from historical data
+      const previousOrders = 0;
+      const previousProducts = 0;
+      const previousRevenue = 0;
+
+      const usersTrend = previousUsers > 0 ? Math.round(((usersCount - previousUsers) / previousUsers) * 100) : 0;
+      const ordersTrend = previousOrders > 0 ? Math.round(((ordersCount - previousOrders) / previousOrders) * 100) : 0;
+      const productsTrend = previousProducts > 0 ? Math.round(((productsCount - previousProducts) / previousProducts) * 100) : 0;
+      const revenueTrend = previousRevenue > 0 ? Math.round(((revenue - previousRevenue) / previousRevenue) * 100) : 0;
+
+      this.stats.set([
+        { 
+          label: 'Utilisateurs', 
+          value: usersCount.toLocaleString('fr-FR'), 
+          icon: '👥', 
+          color: 'from-blue-500 to-blue-600', 
+          trend: usersTrend 
+        },
+        { 
+          label: 'Commandes', 
+          value: ordersCount.toLocaleString('fr-FR'), 
+          icon: '📦', 
+          color: 'from-green-500 to-green-600', 
+          trend: ordersTrend 
+        },
+        { 
+          label: 'Produits', 
+          value: productsCount.toLocaleString('fr-FR'), 
+          icon: '🛍️', 
+          color: 'from-purple-500 to-purple-600', 
+          trend: productsTrend 
+        },
+        { 
+          label: 'Revenus', 
+          value: revenue.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' MAD', 
+          icon: '💰', 
+          color: 'from-orange-500 to-orange-600', 
+          trend: revenueTrend 
+        },
+      ]);
+    } catch (error) {
+      console.error('Error loading stats:', error);
+    } finally {
+      this.isLoading.set(false);
     }
   }
 

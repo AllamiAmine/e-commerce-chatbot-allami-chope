@@ -103,8 +103,39 @@ services:
     networks:
       - shopai-network
 
+  # AI Recommendation Service (Python)
+  recommendation-service:
+    build: ./recommendation-service
+    container_name: shopai-recommendation-service
+    ports:
+      - "8085:8085"
+    environment:
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_USER=root
+      - DB_PASSWORD=root
+      - DB_NAME_ORDERS=shopai_orders
+      - DB_NAME_PRODUCTS=shopai_products
+      - DB_NAME_USERS=shopai_users
+      - MODEL_PATH=/app/models/recommender_model.joblib
+    volumes:
+      - recommendation-models:/app/models
+      - recommendation-data:/app/data
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - shopai-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8085/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
 volumes:
   mysql-data:
+  recommendation-models:
+  recommendation-data:
 
 networks:
   shopai-network:

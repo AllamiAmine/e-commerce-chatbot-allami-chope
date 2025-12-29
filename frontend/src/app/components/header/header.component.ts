@@ -1,15 +1,19 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, HostListener, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { CartService } from '../../services/cart.service';
 import { AuthService } from '../../services/auth.service';
+import { ProductService } from '../../services/product.service';
+import { ChatbotService } from '../../services/chatbot.service';
 import { ROLE_INFO } from '../../models/user.model';
 import { ThemeService } from '../../services/theme.service';
+import { Product } from '../../models/product.model';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, FormsModule],
   template: `
     <header class="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-lg">
       <div class="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
@@ -25,7 +29,7 @@ import { ThemeService } from '../../services/theme.service';
           </div>
           <div class="hidden sm:block">
             <span class="font-bold text-xl text-foreground tracking-wide">
-              allami <span class="text-primary">chope</span>
+              ALLAMI <span class="text-primary">SHOP</span>
             </span>
             <span class="block text-[10px] text-muted-foreground -mt-1">
               Premium Mobile Store
@@ -36,17 +40,110 @@ import { ThemeService } from '../../services/theme.service';
         <!-- Search Bar -->
         <div class="hidden md:flex flex-1 max-w-lg mx-6">
           <div class="relative w-full group">
-            <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
             <input
               type="text"
+              [(ngModel)]="searchQuery"
+              (input)="onSearchInput()"
+              (focus)="showSearchResults.set(true)"
+              (keydown.enter)="handleSearchEnter()"
+              (keydown.escape)="closeSearch()"
               placeholder="Rechercher des produits avec l'IA..."
-              class="w-full pl-11 pr-4 py-2.5 rounded-xl border border-input bg-muted/50 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:bg-background focus:border-transparent transition-all"
+              class="w-full pl-11 pr-20 py-2.5 rounded-xl border border-input bg-muted/50 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:bg-background focus:border-transparent transition-all"
             />
+            @if (searchQuery().length > 0) {
+              <button
+                (click)="clearSearch()"
+                class="absolute right-12 top-1/2 -translate-y-1/2 p-1 hover:bg-muted rounded-lg transition-colors"
+              >
+                <svg class="w-4 h-4 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            }
             <kbd class="absolute right-3 top-1/2 -translate-y-1/2 hidden lg:inline-flex h-6 items-center gap-1 rounded-md border border-border bg-muted px-2 font-mono text-xs text-muted-foreground">
               ⌘K
             </kbd>
+            
+            <!-- Search Results Dropdown -->
+            @if (showSearchResults() && (searchQuery().length > 0 || searchResults().length > 0)) {
+              <div class="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-xl shadow-2xl z-50 max-h-[500px] overflow-y-auto">
+                @if (isSearching()) {
+                  <div class="p-6 text-center">
+                    <svg class="w-8 h-8 text-primary animate-spin mx-auto mb-3" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <circle cx="12" cy="12" r="10" stroke-opacity="0.25"/>
+                      <path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/>
+                    </svg>
+                    <p class="text-sm text-muted-foreground">Recherche IA en cours...</p>
+                  </div>
+                } @else if (searchResults().length > 0) {
+                  <div class="p-2">
+                    <div class="px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      Résultats ({{ searchResults().length }})
+                    </div>
+                    @for (product of searchResults(); track product.id) {
+                      <button
+                        (click)="selectProduct(product)"
+                        class="w-full flex items-center gap-3 px-3 py-3 hover:bg-muted rounded-lg transition-colors text-left group"
+                      >
+                        <div class="relative w-12 h-12 rounded-lg bg-muted overflow-hidden flex-shrink-0">
+                          <img [src]="product.image" [alt]="product.name" class="w-full h-full object-cover group-hover:scale-110 transition-transform">
+                        </div>
+                        <div class="flex-1 min-w-0">
+                          <p class="font-medium text-sm text-foreground truncate group-hover:text-primary transition-colors">
+                            {{ product.name }}
+                          </p>
+                          <div class="flex items-center gap-2 mt-1">
+                            <span class="text-sm font-bold text-primary">{{ product.price | number:'1.0-0' }} MAD</span>
+                            <div class="flex items-center gap-1">
+                              <svg class="w-3 h-3 text-yellow-500 fill-yellow-500" viewBox="0 0 24 24">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                              </svg>
+                              <span class="text-xs text-muted-foreground">{{ product.rating }}</span>
+                            </div>
+                          </div>
+                        </div>
+                        <svg class="w-5 h-5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                      </button>
+                    }
+                    <div class="border-t border-border mt-2 pt-2 px-3 pb-2">
+                      <button
+                        (click)="openChatbotWithQuery()"
+                        class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-primary/10 hover:bg-primary/20 text-primary rounded-lg transition-colors text-sm font-medium"
+                      >
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <circle cx="12" cy="12" r="3"/>
+                          <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+                        </svg>
+                        Demander à l'IA : "{{ searchQuery() }}"
+                      </button>
+                    </div>
+                  </div>
+                } @else if (searchQuery().length >= 2) {
+                  <div class="p-6 text-center">
+                    <svg class="w-12 h-12 text-muted-foreground mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <p class="text-sm font-medium text-foreground mb-1">Aucun résultat trouvé</p>
+                    <p class="text-xs text-muted-foreground mb-4">Essayez avec d'autres mots-clés</p>
+                    <button
+                      (click)="openChatbotWithQuery()"
+                      class="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors text-sm font-medium"
+                    >
+                      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+                      </svg>
+                      Demander à l'IA
+                    </button>
+                  </div>
+                }
+              </div>
+            }
           </div>
         </div>
 
@@ -55,13 +152,22 @@ import { ThemeService } from '../../services/theme.service';
           <a routerLink="/categories" class="px-4 py-2 rounded-lg text-sm font-medium text-foreground hover:bg-muted transition-colors">
             Produits
           </a>
-          <a href="#services" class="px-4 py-2 rounded-lg text-sm font-medium text-foreground hover:bg-muted transition-colors">
+          <a 
+            (click)="scrollToSection('services', $event)"
+            class="px-4 py-2 rounded-lg text-sm font-medium text-foreground hover:bg-muted transition-colors cursor-pointer"
+          >
             Services
           </a>
-          <a href="#deals" class="px-4 py-2 rounded-lg text-sm font-medium text-foreground hover:bg-muted transition-colors">
+          <a 
+            (click)="scrollToSection('deals', $event)"
+            class="px-4 py-2 rounded-lg text-sm font-medium text-foreground hover:bg-muted transition-colors cursor-pointer"
+          >
             Offres
           </a>
-          <a href="#about" class="px-4 py-2 rounded-lg text-sm font-medium text-foreground hover:bg-muted transition-colors">
+          <a 
+            (click)="scrollToSection('about', $event)"
+            class="px-4 py-2 rounded-lg text-sm font-medium text-foreground hover:bg-muted transition-colors cursor-pointer"
+          >
             À propos
           </a>
           @if (authService.isAdmin() || authService.isSeller()) {
@@ -75,11 +181,62 @@ import { ThemeService } from '../../services/theme.service';
         <!-- Actions -->
         <div class="flex items-center gap-2">
           <!-- Mobile Search -->
-          <button class="md:hidden p-2.5 hover:bg-muted rounded-lg transition-colors">
+          <button 
+            (click)="showMobileSearch.set(true)"
+            class="md:hidden p-2.5 hover:bg-muted rounded-lg transition-colors"
+          >
             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </button>
+          
+          <!-- Mobile Search Modal -->
+          @if (showMobileSearch()) {
+            <div class="fixed inset-0 bg-black/50 z-50 md:hidden" (click)="showMobileSearch.set(false)">
+              <div class="bg-background rounded-t-2xl p-4 mt-auto" (click)="$event.stopPropagation()">
+                <div class="flex items-center gap-3 mb-4">
+                  <div class="relative flex-1">
+                    <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    <input
+                      type="text"
+                      [(ngModel)]="searchQuery"
+                      (input)="onSearchInput()"
+                      (keydown.enter)="handleSearchEnter()"
+                      placeholder="Rechercher avec l'IA..."
+                      class="w-full pl-10 pr-4 py-3 rounded-xl border border-input bg-muted/50 text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                      autofocus
+                    />
+                  </div>
+                  <button
+                    (click)="showMobileSearch.set(false)"
+                    class="p-2 hover:bg-muted rounded-lg"
+                  >
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+                @if (searchResults().length > 0) {
+                  <div class="max-h-[60vh] overflow-y-auto space-y-2">
+                    @for (product of searchResults(); track product.id) {
+                      <button
+                        (click)="selectProduct(product)"
+                        class="w-full flex items-center gap-3 p-3 hover:bg-muted rounded-lg"
+                      >
+                        <img [src]="product.image" [alt]="product.name" class="w-16 h-16 rounded-lg object-cover">
+                        <div class="flex-1 text-left">
+                          <p class="font-medium text-sm">{{ product.name }}</p>
+                          <p class="text-sm font-bold text-primary">{{ product.price | number:'1.0-0' }} MAD</p>
+                        </div>
+                      </button>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+          }
 
           <!-- Cart (only for clients) -->
           @if (!authService.isSeller()) {
@@ -226,7 +383,7 @@ import { ThemeService } from '../../services/theme.service';
                       Mes Commandes
                     </a>
                     <a
-                      href="#"
+                      routerLink="/wishlist"
                       class="flex items-center gap-3 px-3 py-2 text-foreground hover:bg-muted rounded-lg transition-colors text-sm"
                       (click)="showUserMenu = false"
                     >
@@ -279,12 +436,154 @@ import { ThemeService } from '../../services/theme.service';
     </header>
   `
 })
-export class HeaderComponent {
+export class HeaderComponent implements OnInit {
   cartService = inject(CartService);
   authService = inject(AuthService);
   themeService = inject(ThemeService);
+  productService = inject(ProductService);
+  chatbotService = inject(ChatbotService);
+  router = inject(Router);
 
   showUserMenu = false;
+  searchQuery = signal('');
+  searchResults = signal<Product[]>([]);
+  showSearchResults = signal(false);
+  showMobileSearch = signal(false);
+  isSearching = signal(false);
+  private searchTimeout: any;
+
+  ngOnInit(): void {
+    // Close search when clicking outside
+    effect(() => {
+      if (this.showSearchResults()) {
+        setTimeout(() => {
+          document.addEventListener('click', this.handleClickOutside.bind(this));
+        }, 0);
+      } else {
+        document.removeEventListener('click', this.handleClickOutside.bind(this));
+      }
+    });
+  }
+
+  @HostListener('document:keydown', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent): void {
+    // Cmd+K or Ctrl+K to focus search
+    if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
+      event.preventDefault();
+      const searchInput = document.querySelector('input[placeholder*="Rechercher"]') as HTMLInputElement;
+      if (searchInput) {
+        searchInput.focus();
+        this.showSearchResults.set(true);
+      }
+    }
+  }
+
+  onSearchInput(): void {
+    const query = this.searchQuery().trim();
+    
+    if (query.length < 2) {
+      this.searchResults.set([]);
+      this.isSearching.set(false);
+      return;
+    }
+
+    this.isSearching.set(true);
+    this.showSearchResults.set(true);
+
+    // Debounce search
+    clearTimeout(this.searchTimeout);
+    this.searchTimeout = setTimeout(() => {
+      this.performSearch(query);
+    }, 300);
+  }
+
+  private async performSearch(query: string): Promise<void> {
+    try {
+      // Search products by name and description
+      const allProducts = this.productService.getProducts();
+      const results = allProducts.filter(product => {
+        const searchLower = query.toLowerCase();
+        const nameMatch = product.name.toLowerCase().includes(searchLower);
+        const descMatch = product.description?.toLowerCase().includes(searchLower);
+        const categoryMatch = this.productService.getCategories()
+          .find(cat => cat.id === product.categoryId)?.name.toLowerCase().includes(searchLower);
+        
+        return nameMatch || descMatch || categoryMatch;
+      });
+
+      // Sort by relevance (exact name match first, then description)
+      results.sort((a, b) => {
+        const aNameMatch = a.name.toLowerCase().includes(query.toLowerCase());
+        const bNameMatch = b.name.toLowerCase().includes(query.toLowerCase());
+        if (aNameMatch && !bNameMatch) return -1;
+        if (!aNameMatch && bNameMatch) return 1;
+        return b.rating - a.rating; // Then by rating
+      });
+
+      this.searchResults.set(results.slice(0, 8)); // Limit to 8 results
+    } catch (error) {
+      console.error('Search error:', error);
+      this.searchResults.set([]);
+    } finally {
+      this.isSearching.set(false);
+    }
+  }
+
+  handleSearchEnter(): void {
+    if (this.searchResults().length > 0) {
+      this.selectProduct(this.searchResults()[0]);
+    } else if (this.searchQuery().trim().length > 0) {
+      this.openChatbotWithQuery();
+    }
+  }
+
+  selectProduct(product: Product): void {
+    this.router.navigate(['/products', product.id]);
+    this.closeSearch();
+  }
+
+  openChatbotWithQuery(): void {
+    // Store query for chatbot and navigate to home
+    sessionStorage.setItem('chatbotQuery', this.searchQuery());
+    this.router.navigate(['/']);
+    this.closeSearch();
+    
+    // Trigger chatbot to open after navigation
+    setTimeout(() => {
+      const chatbotButton = document.querySelector('button[class*="fixed bottom-6 right-6"]') as HTMLElement;
+      if (chatbotButton) {
+        chatbotButton.click();
+        // Send the query to chatbot
+        setTimeout(() => {
+          const chatbotInput = document.querySelector('input[placeholder*="Posez votre question"]') as HTMLInputElement;
+          if (chatbotInput) {
+            chatbotInput.value = this.searchQuery();
+            chatbotInput.dispatchEvent(new Event('input', { bubbles: true }));
+            const sendButton = chatbotInput.nextElementSibling as HTMLElement;
+            if (sendButton) sendButton.click();
+          }
+        }, 500);
+      }
+    }, 100);
+  }
+
+  clearSearch(): void {
+    this.searchQuery.set('');
+    this.searchResults.set([]);
+    this.showSearchResults.set(false);
+  }
+
+  closeSearch(): void {
+    this.showSearchResults.set(false);
+    this.showMobileSearch.set(false);
+  }
+
+  private handleClickOutside(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.relative.w-full.group') && !target.closest('.absolute.top-full')) {
+      this.showSearchResults.set(false);
+    }
+  }
 
   getUserInitials(): string {
     const user = this.authService.user();
@@ -317,5 +616,32 @@ export class HeaderComponent {
   handleLogout(): void {
     this.showUserMenu = false;
     this.authService.logout();
+  }
+
+  scrollToSection(sectionId: string, event: Event): void {
+    event.preventDefault();
+    
+    // Navigate to home if not already there
+    if (this.router.url !== '/') {
+      this.router.navigate(['/']).then(() => {
+        setTimeout(() => this.scrollToElement(sectionId), 100);
+      });
+    } else {
+      this.scrollToElement(sectionId);
+    }
+  }
+
+  private scrollToElement(sectionId: string): void {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      const headerOffset = 80; // Account for sticky header
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
+    }
   }
 }

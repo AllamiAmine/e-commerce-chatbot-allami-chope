@@ -121,7 +121,7 @@ export class ProductsComponent {
   }
 
   onImageError(event: Event): void {
-    (event.target as HTMLImageElement).src = 'assets/placeholder.jpg';
+    (event.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1560393464-5c69a73c5770?w=800&h=800&fit=crop&q=80';
   }
 }
 

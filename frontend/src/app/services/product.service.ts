@@ -2,6 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { Product, Category } from '../models/product.model';
 import { ApiService } from './api.service';
 import { firstValueFrom } from 'rxjs';
+import { AMAZON_PRODUCTS, AMAZON_CATEGORIES } from '../data/amazon-products';
 
 @Injectable({
   providedIn: 'root'
@@ -13,10 +14,13 @@ export class ProductService {
   private productsSignal = signal<Product[]>([]);
   private categoriesSignal = signal<Category[]>([]);
   private loadingSignal = signal<boolean>(false);
-  private useBackend = signal<boolean>(true);
+  private useBackend = signal<boolean>(false); // Use static Amazon data by default
 
-  // Static fallback data
-  private staticProducts: Product[] = [
+  // Static fallback data - Amazon products
+  private staticProducts: Product[] = AMAZON_PRODUCTS;
+  
+  // Legacy static products (kept for reference)
+  private legacyProducts: Product[] = [
     {
       id: 1,
       name: 'Écouteurs Bluetooth Premium',
@@ -459,26 +463,28 @@ export class ProductService {
     }
   ];
 
-  private staticCategories: Category[] = [
-    { id: 1, name: 'Électronique', icon: '📱', color: 'from-blue-500 to-blue-600', keywords: ['électronique', 'tech', 'gadget'] },
-    { id: 2, name: 'Accessoires', icon: '🎧', color: 'from-purple-500 to-purple-600', keywords: ['accessoire', 'câble', 'batterie'] },
-    { id: 3, name: 'Maison', icon: '🏠', color: 'from-green-500 to-green-600', keywords: ['maison', 'lampe', 'connecté'] },
-    { id: 4, name: 'Mode', icon: '👕', color: 'from-pink-500 to-pink-600', keywords: ['mode', 'montre', 'sac'] },
-    { id: 5, name: 'Sports', icon: '⚽', color: 'from-orange-500 to-orange-600', keywords: ['sport', 'fitness'] },
-    { id: 6, name: 'Beauté', icon: '💄', color: 'from-red-500 to-red-600', keywords: ['beauté', 'cosmétique'] },
-  ];
+  private staticCategories: Category[] = AMAZON_CATEGORIES;
 
   constructor() {
     this.loadInitialData();
   }
 
   private async loadInitialData(): Promise<void> {
+    if (this.productsSignal().length > 0) {
+      return; // Already loaded
+    }
+    
     if (this.useBackend()) {
       await this.loadFromBackend();
     } else {
       this.productsSignal.set(this.staticProducts);
       this.categoriesSignal.set(this.staticCategories);
     }
+  }
+  
+  // Public method to ensure data is loaded
+  async ensureDataLoaded(): Promise<void> {
+    await this.loadInitialData();
   }
 
   private async loadFromBackend(): Promise<void> {
@@ -518,10 +524,24 @@ export class ProductService {
   }
 
   getProductById(id: number): Product | undefined {
-    return this.productsSignal().find(p => p.id === id);
+    // First check in loaded products signal
+    const product = this.productsSignal().find(p => p.id === id);
+    if (product) {
+      return product;
+    }
+    
+    // Fallback to static products if signal is empty
+    if (this.productsSignal().length === 0) {
+      return this.staticProducts.find(p => p.id === id);
+    }
+    
+    return undefined;
   }
 
   async getProductByIdAsync(id: number): Promise<Product | undefined> {
+    // Ensure products are loaded first
+    await this.ensureDataLoaded();
+    
     if (this.useBackend()) {
       try {
         const response = await firstValueFrom(this.apiService.getProductById(id));
@@ -532,6 +552,8 @@ export class ProductService {
         console.warn('Failed to load product from backend:', error);
       }
     }
+    
+    // Fallback to local search
     return this.getProductById(id);
   }
 

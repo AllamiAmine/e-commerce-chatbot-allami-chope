@@ -20,7 +20,7 @@ import { RouterLink } from '@angular/router';
                 </svg>
               </div>
               <div>
-                <span class="font-bold text-xl tracking-wide">allami <span class="text-primary">chope</span></span>
+                <span class="font-bold text-xl tracking-wide">ALLAMI <span class="text-primary">SHOP</span></span>
                 <span class="block text-xs text-background/60">Premium Mobile Store</span>
               </div>
             </div>
@@ -49,9 +49,9 @@ import { RouterLink } from '@angular/router';
             <ul class="space-y-2">
               <li><a routerLink="/" class="text-sm text-background/70 hover:text-primary transition-colors">Accueil</a></li>
               <li><a routerLink="/categories" class="text-sm text-background/70 hover:text-primary transition-colors">Catégories</a></li>
-              <li><a href="#" class="text-sm text-background/70 hover:text-primary transition-colors">Nouveautés</a></li>
-              <li><a href="#" class="text-sm text-background/70 hover:text-primary transition-colors">Promotions</a></li>
-              <li><a href="#" class="text-sm text-background/70 hover:text-primary transition-colors">Meilleures ventes</a></li>
+              <li><a routerLink="/wishlist" class="text-sm text-background/70 hover:text-primary transition-colors">Ma Wishlist</a></li>
+              <li><a routerLink="/cart" class="text-sm text-background/70 hover:text-primary transition-colors">Mon Panier</a></li>
+              <li><a routerLink="/contact" class="text-sm text-background/70 hover:text-primary transition-colors">Contact</a></li>
             </ul>
           </div>
 

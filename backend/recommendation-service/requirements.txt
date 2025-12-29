@@ -1,0 +1,41 @@
+# ShopAI Recommendation Service - Professional Dependencies
+# Python 3.10+ (Windows compatible - using pre-built wheels)
+
+# Web Framework
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+python-multipart>=0.0.9
+
+# Data Processing (use pre-built wheels)
+pandas>=2.0.0
+numpy>=1.24.0
+scipy>=1.11.0
+
+# Machine Learning - Recommendation (simplified for Windows)
+scikit-learn>=1.3.0
+
+# Database
+mysql-connector-python>=8.0.0
+sqlalchemy>=2.0.0
+
+# HTTP Client (for downloading datasets)
+requests>=2.31.0
+aiohttp>=3.9.0
+
+# Data Storage & Serialization
+joblib>=1.3.0
+
+# Configuration
+python-dotenv>=1.0.0
+pydantic-settings>=2.0.0
+
+# Logging
+loguru>=0.7.0
+
+# Testing
+pytest>=8.0.0
+httpx>=0.26.0
+
+# Data Download & Processing
+tqdm>=4.66.0
+

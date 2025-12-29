@@ -5,6 +5,7 @@ export const environment = {
   userServiceUrl: 'http://localhost:8081/api',
   productServiceUrl: 'http://localhost:8082/api',
   orderServiceUrl: 'http://localhost:8083/api',
-  chatbotServiceUrl: 'http://localhost:8084/api'
+  chatbotServiceUrl: 'http://localhost:8084/api',
+  recommendationApiUrl: 'http://localhost:8085'
 };
 

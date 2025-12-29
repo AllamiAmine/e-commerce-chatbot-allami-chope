@@ -169,4 +169,28 @@ public class UserService implements UserDetailsService {
     public long countActiveUsers() {
         return userRepository.findByStatus(User.Status.ACTIVE).size();
     }
+
+    public User createUser(String name, String email, String phone, User.Role role, User.Status status, String password) {
+        // Check if email exists
+        if (userRepository.existsByEmail(email)) {
+            throw new RuntimeException("Cet email est déjà utilisé");
+        }
+
+        // Generate default password if not provided
+        String finalPassword = password != null && !password.isEmpty() 
+            ? password 
+            : "TempPass123!"; // Default password that should be changed
+
+        // Create user
+        User user = User.builder()
+                .name(name)
+                .email(email)
+                .password(passwordEncoder.encode(finalPassword))
+                .phone(phone)
+                .role(role)
+                .status(status != null ? status : User.Status.ACTIVE)
+                .build();
+
+        return userRepository.save(user);
+    }
 }
